@@ -1,0 +1,248 @@
+/*
+ * Diseño: Minimalista/Glassmorphism suave, Mobile-First
+ * Paleta: Rosa Pastel, Blanco y Beige
+ */
+
+/* VARIABLES CSS para un manejo centralizado */
+:root {
+    --color-primary-pink: #f8c0c8; /* Rosa Pastel Suave */
+    --color-secondary-beige: #fef5e7; /* Beige/Cremoso */
+    --color-text-dark: #333333;
+    --color-text-light: #ffffff;
+    --color-background: #ffffff;
+    --color-card-bg: rgba(255, 255, 255, 0.7); /* Transparencia para Glassmorphism */
+    --color-shadow-light: rgba(0, 0, 0, 0.05);
+    --color-shadow-medium: rgba(0, 0, 0, 0.1);
+    --font-family-primary: 'Poppins', sans-serif;
+    --border-radius-large: 16px;
+    --border-radius-medium: 8px;
+    --spacing-unit: 1rem; /* 16px */
+}
+
+/* RESET BÁSICO Y TIPOGRAFÍA */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family-primary);
+    line-height: 1.6;
+    color: var(--color-text-dark);
+    background: linear-gradient(135deg, var(--color-secondary-beige) 0%, var(--color-primary-pink) 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* CONTENEDOR PRINCIPAL Y LAYOUT */
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: var(--spacing-unit) auto;
+    padding: var(--spacing-unit) 0;
+    flex-grow: 1;
+}
+
+/* ENCABEZADO Y PIE DE PÁGINA */
+.header, .footer {
+    text-align: center;
+    padding: calc(var(--spacing-unit) * 1.5);
+    background-color: var(--color-card-bg); /* Un poco de glassmorphism aquí */
+    backdrop-filter: blur(5px);
+}
+
+.header h1 {
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+.footer {
+    font-size: 0.8rem;
+    color: var(--color-text-dark);
+    margin-top: auto; /* Empuja el footer hacia abajo */
+}
+
+/* ESTILO DE TARJETA (GLASSMORHISM SUAVE) */
+.card {
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius-large);
+    padding: calc(var(--spacing-unit) * 1.5);
+    margin-bottom: calc(var(--spacing-unit) * 2);
+    box-shadow: 0 8px 32px 0 var(--color-shadow-light); /* Sombra suave */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
+    backdrop-filter: blur(10px); /* Efecto de desenfoque */
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.card h2 {
+    color: var(--color-text-dark);
+    margin-bottom: var(--spacing-unit);
+    border-bottom: 2px solid var(--color-primary-pink);
+    padding-bottom: 0.5rem;
+}
+
+/* FORMULARIOS Y GRUPOS */
+.form-group {
+    margin-bottom: var(--spacing-unit);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+input[type="text"],
+input[type="number"],
+.file-label {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(200, 200, 200, 0.5);
+    border-radius: var(--border-radius-medium);
+    transition: all 0.3s ease;
+    background-color: var(--color-background);
+    color: var(--color-text-dark);
+    font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+.file-label:focus-within {
+    border-color: var(--color-primary-pink);
+    box-shadow: 0 0 5px var(--color-primary-pink);
+    outline: none;
+}
+
+/* FILAS DE FORMULARIO PARA MOBILE-FIRST */
+.form-row {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los elementos bajen en móvil */
+    gap: var(--spacing-unit);
+}
+
+.form-row .form-group {
+    flex: 1 1 100%; /* Cada elemento ocupa toda la fila en móvil */
+}
+
+/* OCULTAR INPUT DE ARCHIVO PERO MANTENER FUNCIONALIDAD */
+#excelFile {
+    display: none;
+}
+
+.file-label {
+    cursor: pointer;
+    text-align: center;
+    background-color: var(--color-secondary-beige);
+    border: 2px dashed var(--color-primary-pink);
+    font-weight: 600;
+}
+
+.file-label:hover {
+    background-color: #f7e9d7;
+}
+
+.status-text {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--color-text-dark);
+}
+
+/* BOTONES CON ESTILO ROMÁNTICO/SUAVE */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 50px; /* Bordes muy redondeados */
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: var(--spacing-unit);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px var(--color-shadow-medium); /* Sombra suave */
+}
+
+.btn-primary {
+    background-color: var(--color-primary-pink);
+    color: var(--color-text-light);
+}
+
+.btn-primary:hover {
+    background-color: #e6a7b1;
+    box-shadow: 0 6px 8px var(--color-shadow-medium);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary-beige);
+    color: var(--color-text-dark);
+    border: 1px solid var(--color-primary-pink);
+}
+
+.btn-secondary:hover {
+    background-color: #f5eedb;
+    box-shadow: 0 6px 8px var(--color-shadow-light);
+    transform: translateY(-2px);
+}
+
+/* ESTILO DE LA TABLA RESPONSIVE */
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Scroll horizontal en pantallas pequeñas */
+    -webkit-overflow-scrolling: touch;
+    margin-top: var(--spacing-unit);
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; /* Asegura el scroll horizontal en móviles */
+    font-size: 0.9rem;
+}
+
+.order-table th, .order-table td {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.order-table th {
+    background-color: var(--color-primary-pink);
+    color: var(--color-text-light);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.order-table tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* MEDIA QUERIES (TABLET Y DESKTOP) */
+@media (min-width: 600px) {
+    .container {
+        padding: calc(var(--spacing-unit) * 2);
+    }
+    
+    .card {
+        padding: calc(var(--spacing-unit) * 2);
+    }
+    
+    /* En tablet/desktop, los elementos de la fila se distribuyen mejor */
+    .form-row .form-group {
+        flex: 1 1 auto; 
+    }
+    
+    .btn {
+        width: 300px; /* Limita el ancho del botón */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .order-table {
+        min-width: auto; /* Se adapta a 100% */
+    }
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Privada SHEIN - Love Orders (Unitario)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script defer src="script.js"></script> 
+</head>
+<body>
+    <header class="header">
+        <h1>Nataly</h1>
+        <p>Gestión de pedidos Shein (Cálculo Unitario)</p>
+    </header>
+
+    <main class="container">
+        <section class="card excel-upload">
+            <h2>Cargar Pedidos Existentes</h2>
+            <div class="form-group">
+                <label for="excelFile" class="file-label">
+                    <span>📂 Seleccionar Archivo Excel</span>
+                </label>
+                <input type="file" id="excelFile" accept=".xlsx, .xls" aria-label="Cargar archivo Excel">
+            </div>
+            <p id="fileStatus" class="status-text"></p>
+        </section>
+        
+
+        <section class="card new-order-form">
+            <h2>➕ Nuevo Lote de Artículos</h2>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="articulo">Artículo (Ej: Labial Rojo, Camisa de Rayas)</label>
+                    <input type="text" id="articulo" required aria-required="true" placeholder="Nombre del producto">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="precioTotalUSD">Costo Total en Shein ($)</label>
+                        <input type="number" id="precioTotalUSD" step="0.01" min="0" required placeholder="Costo del lote en USD">
+                    </div>
+                    <div class="form-group">
+                        <label for="costoEnvioUSD">Costo del Envío (Paquete) ($)</label>
+                        <input type="number" id="costoEnvioUSD" step="0.01" min="0" required placeholder="Envío del lote en USD">
+                    </div>
+                    <div class="form-group">
+                        <label for="cantUnidades">Unidades en el Paquete</label>
+                        <input type="number" id="cantUnidades" value="1" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="precioVentaC">Precio de Venta Unitario (C$)</label>
+                    <input type="number" id="precioVentaC" step="0.01" min="0" required placeholder="Precio al que se vende C$ (por unidad)">
+                    <small aria-live="polite">La ganancia se calculará automáticamente por unidad.</small>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Guardar Lote y Calcular Precios</button>
+            </form>
+        </section>
+
+        <section class="card order-list">
+            <h2>📦 Listado de Artículos/Pedidos</h2>
+            <div id="tableContainer" class="table-container">
+                <p class="status-text">Carga tu Excel para ver el listado.</p>
+            </div>
+            <button id="downloadExcelBtn" class="btn btn-secondary" style="display:none;">Descargar Excel Actualizado</button>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Love Orders. Hecho con ❤️</p>
+    </footer>
+</body>
+</html>
