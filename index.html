@@ -4,22 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- iOS PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Glam Nic">
     <link rel="apple-touch-icon" href="favicon/apple-touch-icon.png">
+
     <title>Tienda Privada SHEIN - Glam Nic</title>
+
+    <!-- Fuentes y estilos -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- Favicons y manifest -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
-    <link rel="manifest" href="favicon/site.webmanifest">
     <link rel="manifest" href="favicon/manifest.json">
     <meta name="theme-color" content="#ff69b4">
 
+    <!-- Scripts -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script defer src="script.js"></script>
 </head>
+
 
 <body>
     <header class="header">
@@ -79,14 +87,14 @@
         </section>
     </main>
 
-    <button id="btnInstall">Instalar App</button>
+     <button id="btnInstall" style="display:none;">Instalar App</button>
 
     <script>
         let deferredPrompt;
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
-            deferredPrompt = e; // Guardamos el evento para usarlo luego
+            deferredPrompt = e;
             document.getElementById('btnInstall').style.display = 'block';
         });
 
