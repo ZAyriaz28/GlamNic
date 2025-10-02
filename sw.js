@@ -7,20 +7,21 @@ const CACHE_NAME = 'glamnic-cache-v1';
 const urlsToCache = [
   './', // Ruta raíz para la aplicación
   '/index.html',
-  '/style.css',
+  '/style.css', // <--- ¡DEBE ESTAR ESTE!
   '/script.js',
-  // Rutas de los favicons/iconos importantes (para el ícono en el celular)
+  // Rutas de los favicons/iconos importantes 
   '/favicon/manifest.json', 
   '/favicon/apple-touch-icon.png',
   '/favicon/android-chrome-192x192.png',
   '/favicon/android-chrome-512x512.png',
   '/favicon/favicon-32x32.png',
   '/favicon/favicon-16x16.png',
-  // Agrega también 'admin.html' si quieres que esa página funcione offline
   '/admin.html',
-  // No olvides la fuente de Google Fonts si quieres que se vea bien offline
+  // La fuente de Google Fonts también debe cachearse o se perderá offline
   'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap'
 ];
+
+// ... (Aquí debe seguir el código de los eventos 'install' y 'fetch')
 
 // 3. Evento 'install': se dispara cuando se instala el Service Worker
 self.addEventListener('install', event => {
