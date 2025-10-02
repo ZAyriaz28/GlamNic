@@ -1,7 +1,7 @@
 {
   "name": "Tienda Privada SHEIN - Glam Nic",
   "short_name": "GlamNic",
-  "start_url": "index.html",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ff69b4",
