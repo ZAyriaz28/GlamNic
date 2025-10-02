@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tienda Privada SHEIN - Love Orders (Unitario)</title>
+    <title>Tienda Privada SHEIN - Glam Nic</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="manifest" href="favicon/site.webmanifest">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-    <script defer src="script.js"></script> 
+    <script defer src="script.js"></script>
 </head>
+
 <body>
     <header class="header">
-        <h1>Nataly</h1>
+        <h1>Sitema Glam Nic</h1>
         <p>Gestión de pedidos Shein (Cálculo Unitario)</p>
     </header>
 
-     <a href="admin.html" class="btn-rosadito">Administrar Pedidos</a>
+    <a href="admin.html" class="btn-rosadito">Administrar Pedidos</a>
 
 
     <main class="container">
-        
+
         <section class="card new-order-form">
             <h2>➕ Nuevo Lote de Artículos</h2>
             <form id="orderForm">
@@ -31,23 +37,28 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="precioTotalUSD">Costo Total en Shein ($)</label>
-                        <input type="number" id="precioTotalUSD" step="0.01" min="0" required placeholder="Costo del lote en USD">
+                        <input type="number" id="precioTotalUSD" step="0.01" min="0" required
+                            placeholder="Costo del lote en USD">
                     </div>
                     <div class="form-group">
                         <label for="costoEnvioUSD">Costo del Envío (Paquete) ($)</label>
-                        <input type="number" id="costoEnvioUSD" step="0.01" min="0" required placeholder="Envío del lote en USD">
+                        <input type="number" id="costoEnvioUSD" step="0.01" min="0" required
+                            placeholder="Envío del lote en USD">
                     </div>
                     <div class="form-group">
                         <label for="cantUnidades">Unidades en el Paquete</label>
                         <input type="number" id="cantUnidades" value="1" min="1" required>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="precioVentaC">Precio de Venta Unitario (C$)</label>
-                    <input type="number" id="precioVentaC" step="0.01" min="0" required placeholder="Precio al que se vende C$ (por unidad)">
+                    <input type="number" id="precioVentaC" step="0.01" min="0" required
+                        placeholder="Precio al que se vende C$ (por unidad)">
                     <small aria-live="polite">La ganancia se calculará automáticamente por unidad.</small>
-                    <div id="feedbackGanancia" style="margin-top: 5px; font-size: 0.85rem; font-weight: 600; transition: color 0.3s ease;">Ingresa los costos y el precio de venta para ver el cálculo en vivo.</div>
+                    <div id="feedbackGanancia"
+                        style="margin-top: 5px; font-size: 0.85rem; font-weight: 600; transition: color 0.3s ease;">
+                        Ingresa los costos y el precio de venta para ver el cálculo en vivo.</div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Guardar Lote y Calcular Precios</button>
@@ -63,7 +74,8 @@
     </main>
 
     <footer class="footer">
-        <p>&copy; 2024 Love Orders. Hecho con ❤️</p>
+        <p>&copy; 2024 Glam Nic</p>
     </footer>
 </body>
+
 </html>
