@@ -76,6 +76,33 @@
         </section>
     </main>
 
+    <button id="btnInstall">Instalar App</button>
+
+<script>
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e; // Guardamos el evento para usarlo luego
+  document.getElementById('btnInstall').style.display = 'block';
+});
+
+document.getElementById('btnInstall').addEventListener('click', () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('Usuario instaló la app');
+      } else {
+        console.log('Usuario canceló la instalación');
+      }
+      deferredPrompt = null;
+    });
+  }
+});
+</script>
+
+
     <footer class="footer">
         <p>&copy; 2024 Glam Nic</p>
     </footer>
