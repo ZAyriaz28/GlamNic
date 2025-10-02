@@ -1,14 +1,18 @@
 // ===============================================================
 // XENON-WEB: LÓGICA DE NEGOCIO Y APLICACIÓN
-// Esta estructura simula la separación de archivos calculator.js y app.js
+// MODIFICADO: Autenticación solo al ELIMINAR producto en admin.html
 // ===============================================================
 
 // ---------------------------------------------------------------
-// I. MÓDULO DE NEGOCIO (Simula calculator.js)
+// I. MÓDULO DE NEGOCIO (Cálculo y Persistencia)
 // ---------------------------------------------------------------
 
 // --- VARIABLES DE CONFIGURACIÓN Y CONSTANTES ---
 const TASA_CAMBIO_DOLAR = 36.6243; 
+const LS_KEY = 'sheinOrdersData';
+const ADMIN_USER = 'admin2106';
+const ADMIN_PASS = 'admin2106';
+
 let itemCounter = 0; 
 
 // Definición de las cabeceras (para consistencia de lectura/escritura)
@@ -42,108 +46,137 @@ const calcularValoresFinancieros = (precioTotalUSD, costoEnvioUSD, cantUnidades,
     };
 };
 
+// --- PERSISTENCIA LOCAL STORAGE ---
+const saveOrdersToLocalStorage = (data) => {
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+};
 
-// ---------------------------------------------------------------
-// II. MÓDULO DE APLICACIÓN (Simula app.js)
-// ---------------------------------------------------------------
+const loadOrdersFromLocalStorage = () => {
+    const json = localStorage.getItem(LS_KEY);
+    // Aseguramos que el Local Storage se cargue como un array.
+    try {
+        return json ? JSON.parse(json) : [];
+    } catch (e) {
+        console.error("Error cargando datos de Local Storage:", e);
+        return [];
+    }
+};
 
-// Elementos del DOM
-const orderForm = document.getElementById('orderForm');
-const excelFileInput = document.getElementById('excelFile');
-const fileStatusText = document.getElementById('fileStatus');
-const tableContainer = document.getElementById('tableContainer');
-const downloadExcelBtn = document.getElementById('downloadExcelBtn');
+let ordersData = loadOrdersFromLocalStorage();
 
-// Estructura de datos global
-let ordersData = [];
+// --- FUNCIÓN DE INICIALIZACIÓN DE DATOS Y CONTADOR ---
+const initializeDataAndCounter = () => {
+    ordersData = loadOrdersFromLocalStorage();
+    // Aseguramos que N sea un número para el cálculo
+    const maxN = ordersData.reduce((max, item) => Math.max(max, parseInt(item.N) || 0), 0);
+    itemCounter = maxN + 1;
+};
 
 
-// --- MANEJO DE EXCEL (LECTURA y REVALIDACIÓN) ---
-const handleFileLoad = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    fileStatusText.textContent = `Cargando "${file.name}"...`;
+// --- FUNCIÓN DE ELIMINACIÓN (GLOBAL) CON AUTENTICACIÓN ON-DEMAND ---
+const deleteOrder = (n) => {
     
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const worksheet = workbook.Sheets[workbook.SheetNames[0]]; 
+    const executeDeletion = () => {
+        if (confirm(`¿Estás seguro de que quieres eliminar el artículo Nº ${n}? Esta acción es irreversible.`)) {
+            // Aseguramos que N sea numérico para la comparación
+            ordersData = ordersData.filter(order => parseInt(order.N) !== parseInt(n));
+            saveOrdersToLocalStorage(ordersData);
             
-            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            let loadedOrders = [];
-
-            if (rawData.length > 2) { 
-                const headers = rawData[1].map(h => h ? h.toString().trim().replace(/[\s\W]+/g, '') : '');
-                
-                // 1. Mapeo inicial de datos sin procesar
-                loadedOrders = rawData.slice(2)
-                    .filter(row => row.length > 0 && row.some(cell => cell))
-                    .map(row => {
-                        const order = {};
-                        headers.forEach((key, index) => {
-                            let cleanedKey = key.replace(/N\s*▫/, 'N').replace(/Ganacia/, 'Ganancia');
-                            order[cleanedKey] = row[index] || ''; 
-                        });
-                        return order;
-                    });
-                
-                // 2. CRÍTICO: RECALCULAMOS y REVALIDAMOS CADA FILA CARGADA
-                ordersData = loadedOrders.map(order => {
-                    const costoU = parseFloat(order['CostoU$']) || 0;
-                    const envioU = parseFloat(order['costo/envíoU$']) || 0;
-                    const unidades = parseInt(order['Unidades']) || 1;
-                    const precioVentaC = parseFloat(order['Precio/ventaC$']) || 0;
-
-                    // Si no tiene datos de costo, es probable que sea una fila vacía o corrupta
-                    if (costoU === 0 && envioU === 0 && precioVentaC === 0) {
-                        return null; 
-                    }
-
-                    const calculated = calcularValoresFinancieros(costoU, envioU, unidades, precioVentaC);
-
-                    // Devolvemos el objeto completo con los cálculos actualizados
-                    return {
-                        ...order, 
-                        'Costo/UnidadU$': calculated.costoUnidadUSD,
-                        'Costo/UnidadC$': calculated.costoUnidadC,
-                        'Ganancia/UnidadC$': calculated.gananciaUnidadC,
-                        'Ganancia/TotalC$': calculated.gananciaTotalC,
-                        'T/C': calculated.tasaCambio 
-                    };
-                }).filter(order => order !== null); 
-
-                
-                // Inicialización del contador para el próximo pedido
-                const maxN = ordersData.reduce((max, item) => Math.max(max, parseInt(item.N) || 0), 0);
-                itemCounter = maxN + 1;
-
-                fileStatusText.textContent = `✅ Archivo "${file.name}" cargado. ${ordersData.length} artículos encontrados. Próximo Nº: ${itemCounter}`;
-                renderTable(ordersData);
-                downloadExcelBtn.style.display = 'block';
-
-            } else {
-                ordersData = []; 
-                itemCounter = 1; 
-                fileStatusText.textContent = `⚠️ Archivo cargado. No hay artículos. Próximo Nº: ${itemCounter}`;
-                renderTable(ordersData);
-            }
-
-        } catch (error) {
-            console.error("Error al procesar el archivo Excel:", error);
-            fileStatusText.textContent = `❌ Error al leer el archivo. Asegúrate de que las cabeceras estén en la segunda fila.`;
+            // Re-renderizar la vista de admin sin modo editable
+            renderAdminView(); 
+            initializeDataAndCounter(); // Reajustar el contador
+            alert(`Artículo Nº ${n} eliminado exitosamente.`);
         }
     };
 
-    reader.readAsArrayBuffer(file);
+    // Si no está logueado, pedir credenciales
+    if (sessionStorage.getItem('isAdminLoggedIn') !== 'true') {
+        // Usamos prompt para el usuario/contraseña de forma simple
+        const username = prompt("Introduce el Usuario de Administración:");
+        // Si el usuario cancela el primer prompt, cancelamos.
+        if (username === null) return;
+        
+        const password = prompt("Introduce la Contraseña:");
+        // Si el usuario cancela el segundo prompt, cancelamos.
+        if (password === null) return;
+
+        if (username === ADMIN_USER && password === ADMIN_PASS) {
+            sessionStorage.setItem('isAdminLoggedIn', 'true');
+            alert("Inicio de sesión exitoso. Procediendo a eliminar.");
+            executeDeletion(); 
+        } else {
+            alert("Usuario o contraseña incorrectos. No se puede eliminar.");
+            return;
+        }
+    } else {
+        // Si ya está logueado, proceder directamente
+        executeDeletion();
+    }
+};
+window.deleteOrder = deleteOrder; // Hacemos la función global
+
+
+// --- RENDERIZACIÓN DE LA TABLA (COMPARTIDA) ---
+const renderTable = (data, containerId, isEditable = false) => {
+    const container = document.getElementById(containerId);
+    if (!container) return; // Salir si el contenedor no existe (estamos en otra página)
+    
+    if (data.length === 0) {
+        container.innerHTML = '<p class="status-text">No hay artículos cargados o guardados.</p>';
+        return;
+    }
+
+    const displayHeaders = [
+        { key: 'N', name: 'Nº' }, { key: 'Articulo', name: 'Artículo' }, { key: 'U/M', name: 'U/M' },
+        { key: 'CostoU$', name: 'Costo Shein ($)' }, { key: 'costo/envíoU$', name: 'Envío Paquete ($)' }, 
+        { key: 'Unidades', name: 'Unidades' }, { key: 'Costo/UnidadU$', name: 'Costo Unitario ($)' },
+        { key: 'Costo/UnidadC$', name: 'Costo Unitario (C$)' }, { key: 'Precio/ventaC$', name: 'Precio Venta (C$)' },
+        { key: 'Ganancia/UnidadC$', name: 'Ganancia Unidad (C$)' }, { key: 'Ganancia/TotalC$', name: 'Ganancia Total (C$)' },
+        { key: 'T/C', name: 'T/C' },
+    ];
+    
+    const headers = displayHeaders.filter(h => data[0].hasOwnProperty(h.key));
+    
+    let html = '<div class="table-container"><table class="order-table"><thead><tr>';
+    headers.forEach(header => { html += `<th>${header.name}</th>`; });
+    
+    if (isEditable) {
+        html += '<th>Eliminar</th>';
+    }
+    html += '</tr></thead><tbody>';
+
+    data.forEach(order => {
+        html += '<tr>';
+        headers.forEach(header => {
+            let value = order[header.key];
+            
+            if (!isNaN(value) && value !== '') {
+                 const num = parseFloat(value);
+                 let formatted = num.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+
+                 if (header.key.includes('C$')) { formatted = 'C$ ' + formatted; } 
+                 else if (header.key.includes('U$') || header.key === 'CostoU$' || header.key === 'costo/envíoU$') { formatted = '$ ' + formatted; } 
+                 else if (header.key === 'T/C') { formatted = parseFloat(value).toFixed(4); }
+                 value = formatted;
+            }
+            html += `<td>${value || '—'}</td>`;
+        });
+        
+        if (isEditable) {
+            // Se llama a la función global deleteOrder
+            html += `<td><button class="btn-delete" onclick="deleteOrder(${order.N})">❌</button></td>`;
+        }
+        html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
 };
 
-excelFileInput.addEventListener('change', handleFileLoad);
 
-// --- MANEJO DEL FORMULARIO (ESCRITURA Y ACTUALIZACIÓN EN VIVO) ---
+// ---------------------------------------------------------------
+// II. LÓGICA DE index.html (Página Principal)
+// ---------------------------------------------------------------
 const handleFormSubmit = (event) => {
     event.preventDefault();
 
@@ -178,66 +211,103 @@ const handleFormSubmit = (event) => {
 
     ordersData.push(newOrder); 
     itemCounter++;
-
-    renderTable(ordersData);
     
-    downloadExcelBtn.style.display = 'block';
+    saveOrdersToLocalStorage(ordersData); // PERSISTENCIA: Guardar en Local Storage
 
-    orderForm.reset();
+    renderTable(ordersData, 'tableContainer', false); // Renderiza la lista pública
+    
+    document.getElementById('orderForm').reset();
     document.getElementById('feedbackGanancia').innerHTML = 'Ingresa los costos y el precio de venta para ver el cálculo en vivo.';
     document.getElementById('feedbackGanancia').style.color = '#333333';
-    alert(`Lote de ${cantUnidades} unidades de "${articulo}" guardado exitosamente. Ahora puedes descargar el Excel o agregar otro artículo.`);
+    alert(`Lote de ${cantUnidades} unidades de "${articulo}" guardado exitosamente.`);
 };
 
-orderForm.addEventListener('submit', handleFormSubmit);
 
-// --- RENDERIZACIÓN DE LA TABLA (Sin cambios) ---
-const renderTable = (data) => {
-    if (data.length === 0) {
-        tableContainer.innerHTML = '<p class="status-text">No hay artículos cargados o guardados.</p>';
-        return;
-    }
+const initializeIndexPage = () => {
+    const orderForm = document.getElementById('orderForm');
+    if (orderForm) {
+        // Lógica de index.html (Página principal)
+        const inputPrecioVenta = document.getElementById('precioVentaC');
+        const inputPrecioUSD = document.getElementById('precioTotalUSD');
+        const inputEnvioUSD = document.getElementById('costoEnvioUSD');
+        const inputUnidades = document.getElementById('cantUnidades');
+        const feedbackDiv = document.getElementById('feedbackGanancia');
 
-    const displayHeaders = [
-        { key: 'N', name: 'Nº' }, { key: 'Articulo', name: 'Artículo' }, { key: 'U/M', name: 'U/M' },
-        { key: 'CostoU$', name: 'Costo Shein ($)' }, { key: 'costo/envíoU$', name: 'Envío Paquete ($)' }, 
-        { key: 'Unidades', name: 'Unidades' }, { key: 'Costo/UnidadU$', name: 'Costo Unitario ($)' },
-        { key: 'Costo/UnidadC$', name: 'Costo Unitario (C$)' }, { key: 'Precio/ventaC$', name: 'Precio Venta (C$)' },
-        { key: 'Ganancia/UnidadC$', name: 'Ganancia Unidad (C$)' }, { key: 'Ganancia/TotalC$', name: 'Ganancia Total (C$)' },
-        { key: 'T/C', name: 'T/C' },
-    ];
-    
-    const headers = displayHeaders.filter(h => data[0].hasOwnProperty(h.key));
-    
-    let html = '<table class="order-table"><thead><tr>';
-    headers.forEach(header => { html += `<th>${header.name}</th>`; });
-    html += '</tr></thead><tbody>';
+        const updateLiveFeedback = () => {
+            const pVentaC = parseFloat(inputPrecioVenta.value) || 0;
+            const pTotalUSD = parseFloat(inputPrecioUSD.value) || 0;
+            const cEnvioUSD = parseFloat(inputEnvioUSD.value) || 0;
+            const unidades = parseInt(inputUnidades.value) || 1; 
 
-    data.forEach(order => {
-        html += '<tr>';
-        headers.forEach(header => {
-            let value = order[header.key];
-            
-            if (!isNaN(value) && value !== '') {
-                 const num = parseFloat(value);
-                 let formatted = num.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+            if (pTotalUSD > 0 || cEnvioUSD > 0 || pVentaC > 0) {
+                const calculated = calcularValoresFinancieros(pTotalUSD, cEnvioUSD, unidades, pVentaC);
+                
+                const costoUnitarioC = calculated.costoUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
+                const gananciaUnidadC = calculated.gananciaUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
+                const gananciaTotalC = calculated.gananciaTotalC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
 
-                 if (header.key.includes('C$')) { formatted = 'C$ ' + formatted; } 
-                 else if (header.key.includes('U$') || header.key === 'CostoU$' || header.key === 'costo/envíoU$') { formatted = '$ ' + formatted; } 
-                 else if (header.key === 'T/C') { formatted = parseFloat(value).toFixed(4); }
-                 value = formatted;
+                let color = calculated.gananciaUnidadC >= 0.01 ? '#10b981' : '#ef4444'; 
+
+                feedbackDiv.style.color = color;
+                feedbackDiv.innerHTML = `
+                    Costo Unitario: **C$ ${costoUnitarioC}** <br>
+                    Ganancia/Unidad: **C$ ${gananciaUnidadC}** | Ganancia/Total: **C$ ${gananciaTotalC}**
+                `;
+
+            } else {
+                feedbackDiv.textContent = 'Ingresa los costos y el precio de venta para ver el cálculo en vivo.';
+                feedbackDiv.style.color = '#333333'; 
             }
-            html += `<td>${value || '—'}</td>`;
-        });
-        html += '</tr>';
-    });
+        };
 
-    html += '</tbody></table>';
-    tableContainer.innerHTML = html;
+        // Asignación de eventos
+        inputPrecioVenta.addEventListener('input', updateLiveFeedback);
+        inputPrecioUSD.addEventListener('input', updateLiveFeedback);
+        inputEnvioUSD.addEventListener('input', updateLiveFeedback);
+        inputUnidades.addEventListener('input', updateLiveFeedback);
+
+        orderForm.addEventListener('submit', handleFormSubmit);
+
+        // Renderizar la tabla pública
+        renderTable(ordersData, 'tableContainer', false);
+        updateLiveFeedback();
+    }
 };
 
-// --- MANEJO DE EXCEL (ESCRITURA Y DESCARGA - Formato Final) ---
-downloadExcelBtn.addEventListener('click', () => {
+// ---------------------------------------------------------------
+// III. LÓGICA DE admin.html (Página de Administración)
+// ---------------------------------------------------------------
+
+const renderAdminView = () => {
+    const listTitle = document.getElementById('listTitle');
+    const downloadCard = document.getElementById('downloadCard');
+    
+    // El título ahora es estático
+    listTitle.textContent = '🔑 Lista Completa de Artículos (Administración)';
+    
+    if (downloadCard) downloadCard.style.display = 'block';
+
+    // RENDERIZAR TABLA CON BOTONES DE ELIMINAR (isEditable = true)
+    renderTable(ordersData, 'dynamicContent', true);
+};
+
+const initializeAdminPage = () => {
+    const dynamicContent = document.getElementById('dynamicContent');
+    if (dynamicContent) {
+        // Lógica de admin.html: Muestra la lista completa inmediatamente
+        const downloadExcelBtn = document.getElementById('downloadExcelBtn');
+        if(downloadExcelBtn) {
+            downloadExcelBtn.addEventListener('click', handleDownloadExcel);
+        }
+
+        // Muestra la vista de administración por defecto (Sin login inicial)
+        renderAdminView();
+    }
+};
+
+
+// --- MANEJO DE EXCEL (ESCRITURA Y DESCARGA - Compartida) ---
+const handleDownloadExcel = () => {
     if (ordersData.length === 0) {
         alert('No hay datos para descargar.');
         return;
@@ -265,7 +335,7 @@ downloadExcelBtn.addEventListener('click', () => {
     // 3. Construimos el array completo: Título + Cabeceras (legibles) + Datos
     const dataForSheet = [
         ["Registro de Artículos SHEIN - Love Orders"], 
-        DISPLAY_HEADER_NAMES, 
+        EXCEL_HEADERS, 
         ...dataRows 
     ];
 
@@ -277,62 +347,13 @@ downloadExcelBtn.addEventListener('click', () => {
 
     const today = new Date().toISOString().slice(0, 10);
     XLSX.writeFile(wb, `Pedidos_Shein_Actualizado_Unitario_${today}.xlsx`);
-});
-
-
-// --- MEJORA UX: CÁLCULO EN VIVO (Sin cambios) ---
-const inputPrecioVenta = document.getElementById('precioVentaC');
-const inputPrecioUSD = document.getElementById('precioTotalUSD');
-const inputEnvioUSD = document.getElementById('costoEnvioUSD');
-const inputUnidades = document.getElementById('cantUnidades');
-
-const feedbackDiv = document.createElement('div');
-feedbackDiv.id = 'feedbackGanancia';
-feedbackDiv.style.marginTop = '5px';
-feedbackDiv.style.fontSize = '0.85rem';
-feedbackDiv.style.fontWeight = '600';
-feedbackDiv.style.transition = 'color 0.3s ease';
-
-if (inputPrecioVenta && inputPrecioVenta.parentNode) {
-    inputPrecioVenta.parentNode.appendChild(feedbackDiv); 
-}
-
-const updateLiveFeedback = () => {
-    const pVentaC = parseFloat(inputPrecioVenta.value) || 0;
-    const pTotalUSD = parseFloat(inputPrecioUSD.value) || 0;
-    const cEnvioUSD = parseFloat(inputEnvioUSD.value) || 0;
-    const unidades = parseInt(inputUnidades.value) || 1; 
-
-    if (pTotalUSD > 0 || cEnvioUSD > 0 || pVentaC > 0) {
-        const calculated = calcularValoresFinancieros(pTotalUSD, cEnvioUSD, unidades, pVentaC);
-        
-        const costoUnitarioC = calculated.costoUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
-        const gananciaUnidadC = calculated.gananciaUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
-        const gananciaTotalC = calculated.gananciaTotalC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
-
-        let color = calculated.gananciaUnidadC >= 0.01 ? '#10b981' : '#ef4444'; 
-
-        feedbackDiv.style.color = color;
-        feedbackDiv.innerHTML = `
-            Costo Unitario: **C$ ${costoUnitarioC}** <br>
-            Ganancia/Unidad: **C$ ${gananciaUnidadC}** | Ganancia/Total: **C$ ${gananciaTotalC}**
-        `;
-
-    } else {
-        feedbackDiv.textContent = 'Ingresa los costos y el precio de venta para ver el cálculo en vivo.';
-        feedbackDiv.style.color = '#333333'; 
-    }
 };
 
-inputPrecioVenta.addEventListener('input', updateLiveFeedback);
-inputPrecioUSD.addEventListener('input', updateLiveFeedback);
-inputEnvioUSD.addEventListener('input', updateLiveFeedback);
-inputUnidades.addEventListener('input', updateLiveFeedback);
 
-
-// --- INICIALIZACIÓN ---
+// --- INICIALIZACIÓN GENERAL ---
 document.addEventListener('DOMContentLoaded', () => {
-    fileStatusText.textContent = `Tasa de Cambio (T/C) definida en ${TASA_CAMBIO_DOLAR} C$.`;
-    renderTable(ordersData); 
-    updateLiveFeedback();
+    initializeDataAndCounter(); // Cargar datos y ajustar contador global
+    
+    initializeIndexPage(); // Intenta inicializar la página principal (index.html)
+    initializeAdminPage(); // Intenta inicializar la página de administración (admin.html)
 });

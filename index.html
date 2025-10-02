@@ -15,19 +15,11 @@
         <p>Gestión de pedidos Shein (Cálculo Unitario)</p>
     </header>
 
-    <main class="container">
-        <section class="card excel-upload">
-            <h2>Cargar Pedidos Existentes</h2>
-            <div class="form-group">
-                <label for="excelFile" class="file-label">
-                    <span>📂 Seleccionar Archivo Excel</span>
-                </label>
-                <input type="file" id="excelFile" accept=".xlsx, .xls" aria-label="Cargar archivo Excel">
-            </div>
-            <p id="fileStatus" class="status-text"></p>
-        </section>
-        
+     <a href="admin.html" class="btn-rosadito">Administrar Pedidos</a>
 
+
+    <main class="container">
+        
         <section class="card new-order-form">
             <h2>➕ Nuevo Lote de Artículos</h2>
             <form id="orderForm">
@@ -55,6 +47,7 @@
                     <label for="precioVentaC">Precio de Venta Unitario (C$)</label>
                     <input type="number" id="precioVentaC" step="0.01" min="0" required placeholder="Precio al que se vende C$ (por unidad)">
                     <small aria-live="polite">La ganancia se calculará automáticamente por unidad.</small>
+                    <div id="feedbackGanancia" style="margin-top: 5px; font-size: 0.85rem; font-weight: 600; transition: color 0.3s ease;">Ingresa los costos y el precio de venta para ver el cálculo en vivo.</div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Guardar Lote y Calcular Precios</button>
@@ -62,11 +55,10 @@
         </section>
 
         <section class="card order-list">
-            <h2>📦 Listado de Artículos/Pedidos</h2>
+            <h2 id="listTitle">📦 Listado de Artículos/Pedidos</h2>
             <div id="tableContainer" class="table-container">
-                <p class="status-text">Carga tu Excel para ver el listado.</p>
+                <p class="status-text">No hay artículos cargados o guardados.</p>
             </div>
-            <button id="downloadExcelBtn" class="btn btn-secondary" style="display:none;">Descargar Excel Actualizado</button>
         </section>
     </main>
 

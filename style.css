@@ -187,6 +187,26 @@ input[type="number"]:focus,
     transform: translateY(-2px);
 }
 
+/* Estilo personalizado para el botón rosado */
+.btn-rosadito {
+    background-color: #ffb6c1; /* rosa claro */
+    color: white; /* texto blanco */
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-block;
+}
+
+.btn-rosadito:hover {
+    background-color: #ff7fae; /* rosa más intenso al pasar el mouse */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+}
+
+
 /* ESTILO DE LA TABLA RESPONSIVE */
 .table-container {
     width: 100%;

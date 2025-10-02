@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - Love Orders</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script defer src="script.js"></script> 
+</head>
+<body>
+    <header class="header">
+        <h1>Nataly</h1>
+        <p>Panel de Administración de Pedidos</p>
+       
+    </header>
+
+     <a href="index.html" class="btn-rosadito">Volver a Agregar Pedidos</a>
+
+    <main class="container">
+        
+        <section class="card admin-panel-container">
+            <h2 id="listTitle"></h2>
+            <div id="dynamicContent" class="table-container">
+                </div>
+        </section>
+        
+        <div class="card" id="downloadCard" style="display:none; text-align: center; padding: 1rem 1.5rem;">
+            <p class="status-text">Genera un respaldo o reporte de todos los pedidos.</p>
+            <button id="downloadExcelBtn" class="btn btn-secondary" style="margin-top: 0.5rem;">Descargar Excel de Pedidos</button>
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 Love Orders. Hecho con ❤️</p>
+    </footer>
+</body>
+</html>
