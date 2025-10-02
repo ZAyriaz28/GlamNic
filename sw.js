@@ -1,7 +1,5 @@
-self.addEventListener('install', event => {
-  console.log('Service Worker instalado');
-});
-
-self.addEventListener('fetch', event => {
-  // Aquí podrías cachear recursos si quieres offline
-});
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(() => console.log('SW registrado'))
+    .catch(err => console.log('Error al registrar SW', err));
+}
