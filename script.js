@@ -74,45 +74,100 @@ const initializeDataAndCounter = () => {
 
 
 // --- FUNCIÓN DE ELIMINACIÓN (GLOBAL) CON AUTENTICACIÓN ON-DEMAND ---
-const deleteOrder = (n) => {
+// Se convierte en asíncrona para usar SweetAlert2 con await
+const deleteOrder = async (n) => {
     
-    const executeDeletion = () => {
-        if (confirm(`¿Estás seguro de que quieres eliminar el artículo Nº ${n}? Esta acción es irreversible.`)) {
-            // Aseguramos que N sea numérico para la comparación
+    // Función para ejecutar la eliminación después de la autenticación
+    const executeDeletion = async () => {
+        // REEMPLAZO DE 'confirm' por SweetAlert2
+        const result = await Swal.fire({
+            title: '¿Estás seguro de eliminar?',
+            html: `Vas a eliminar el artículo N° **${n}**. Esta acción es **irreversible**.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, ¡Eliminar!',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            // Lógica de eliminación
             ordersData = ordersData.filter(order => parseInt(order.N) !== parseInt(n));
             saveOrdersToLocalStorage(ordersData);
             
             // Re-renderizar la vista de admin sin modo editable
             renderAdminView(); 
             initializeDataAndCounter(); // Reajustar el contador
-            alert(`Artículo Nº ${n} eliminado exitosamente.`);
+            
+            // REEMPLAZO DE 'alert' de éxito
+            Swal.fire({
+                icon: 'success',
+                title: '¡Eliminado!',
+                text: `Artículo N° ${n} eliminado exitosamente.`,
+                timer: 2000, // Notificación que se cierra sola
+                showConfirmButton: false
+            });
         }
     };
 
-    // Si no está logueado, pedir credenciales
+    // --- LÓGICA DE AUTENTICACIÓN ---
     if (sessionStorage.getItem('isAdminLoggedIn') !== 'true') {
-        // Usamos prompt para el usuario/contraseña de forma simple
-        const username = prompt("Introduce el Usuario de Administración:");
-        // Si el usuario cancela el primer prompt, cancelamos.
-        if (username === null) return;
-        
-        const password = prompt("Introduce la Contraseña:");
-        // Si el usuario cancela el segundo prompt, cancelamos.
-        if (password === null) return;
+        // REEMPLAZO DE 'prompt' por SweetAlert2 para el login (Input múltiple)
+        const { value: formValues } = await Swal.fire({
+            title: 'Autenticación de Administrador',
+            html:
+                '<input id="swal-input-user" class="swal2-input" placeholder="Usuario" autocomplete="off">' +
+                '<input id="swal-input-pass" class="swal2-input" type="password" placeholder="Contraseña">',
+            icon: 'info',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Aceptar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                const user = document.getElementById('swal-input-user').value;
+                const pass = document.getElementById('swal-input-pass').value;
+                if (!user || !pass) {
+                    Swal.showValidationMessage('⚠️ Por favor, ingresa usuario y contraseña');
+                    return false;
+                }
+                return [user, pass];
+            }
+        });
 
-        if (username === ADMIN_USER && password === ADMIN_PASS) {
-            sessionStorage.setItem('isAdminLoggedIn', 'true');
-            alert("Inicio de sesión exitoso. Procediendo a eliminar.");
-            executeDeletion(); 
-        } else {
-            alert("Usuario o contraseña incorrectos. No se puede eliminar.");
-            return;
+        // Si el usuario cancela, formValues será undefined
+        if (formValues) {
+            const [username, password] = formValues;
+
+            if (username === ADMIN_USER && password === ADMIN_PASS) {
+                sessionStorage.setItem('isAdminLoggedIn', 'true');
+                
+                // Notificación de login exitoso
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Acceso Concedido!',
+                    text: 'Iniciando eliminación...',
+                    timer: 1000, 
+                    showConfirmButton: false
+                }).then(() => {
+                    executeDeletion(); // Proceder a la confirmación de eliminación
+                });
+            } else {
+                // Notificación de error de credenciales
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Denegado',
+                    text: 'Usuario o contraseña incorrectos. Intenta de nuevo.',
+                });
+                return;
+            }
         }
     } else {
         // Si ya está logueado, proceder directamente
         executeDeletion();
     }
 };
+
 window.deleteOrder = deleteOrder; // Hacemos la función global
 
 
