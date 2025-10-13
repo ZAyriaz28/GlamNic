@@ -12,12 +12,21 @@
     <meta name="theme-color" content="#ffffff">
 
     <title>Tienda Privada SHEIN - Glam Nic</title>
+<<<<<<< HEAD
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+=======
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+>>>>>>> 163d6fa (Mejoras de la pagina)
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <script defer src="script.js"></script>
 </head>
 
+<<<<<<< HEAD
 <body>
     <header class="header">
         <h1>Sitema Glam Nic</h1>
@@ -79,6 +88,76 @@
     <footer class="footer">
         <p>&copy; 2024 Glam Nic</p>
     </footer>
+=======
+<body class="d-flex flex-column min-vh-100" style="font-family: 'Poppins', sans-serif;">
+    
+    <header class="header-glass text-center shadow-sm">
+        <h1 class="fw-bold">Sitema Glam Nic</h1>
+        <p class="mb-0 text-muted">Gestión de pedidos Shein (Cálculo Unitario)</p>
+    </header>
+
+    <div class="text-center my-3">
+        <a href="admin.html" class="btn btn-nav-pink px-4 py-2 shadow-sm">Administrar Pedidos 🔑</a>
+    </div>
+
+    <main class="container my-4 flex-grow-1">
+
+        <div class="row">
+            <section class="col-lg-5 mb-4">
+                <div class="card p-4 shadow-lg h-100 new-order-form">
+                    <h2 class="h5 pb-2 border-bottom border-primary">➕ Nuevo Lote de Artículos</h2>
+                    <form id="orderForm">
+                        <div class="mb-3">
+                            <label for="articulo" class="form-label small text-muted">Artículo (Ej: Labial Rojo, Camisa de Rayas)</label>
+                            <input type="text" id="articulo" class="form-control" required aria-required="true" placeholder="Nombre del producto">
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="precioTotalUSD" class="form-label small text-muted">Costo Total en Shein ($)</label>
+                                <input type="number" id="precioTotalUSD" step="0.01" min="0" class="form-control" required placeholder="Costo del lote en USD">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="costoEnvioUSD" class="form-label small text-muted">Costo del Envío (Paquete) ($)</label>
+                                <input type="number" id="costoEnvioUSD" step="0.01" min="0" class="form-control" required placeholder="Envío del lote en USD">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="cantUnidades" class="form-label small text-muted">Unidades en el Paquete</label>
+                                <input type="number" id="cantUnidades" value="1" min="1" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="precioVentaC" class="form-label small text-muted">Precio de Venta Unitario (C$)</label>
+                            <input type="number" id="precioVentaC" step="0.01" min="0" class="form-control" required placeholder="Precio al que se vende C$ (por unidad)">
+                            <small class="form-text text-muted" aria-live="polite">La ganancia se calculará automáticamente por unidad.</small>
+                            <div id="feedbackGanancia" class="text-muted mt-2 fw-semibold">
+                                Ingresa los costos y el precio de venta para ver el cálculo en vivo.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-pink w-100 mt-3 rounded-pill">Guardar Lote y Calcular Precios</button>
+                    </form>
+                </div>
+            </section>
+            
+            <section class="col-lg-7 mb-4">
+                <div class="card p-4 shadow-lg h-100 order-list">
+                    <h2 class="h5 pb-2 border-bottom border-primary" id="listTitle">📦 Listado de Artículos/Pedidos</h2>
+                    <div id="tableContainer">
+                        <p class="status-text text-muted">No hay artículos cargados o guardados.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer-glass text-center mt-auto shadow-sm">
+        <p class="mb-0">&copy; 2024 Glam Nic</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+>>>>>>> 163d6fa (Mejoras de la pagina)
 </body>
 
 </html>
