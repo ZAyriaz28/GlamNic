@@ -16,26 +16,16 @@ const ADMIN_PASS = 'admin2106';
 let itemCounter = 0; 
 
 // Definición de las cabeceras (para consistencia de lectura/escritura)
-<<<<<<< HEAD
-const EXCEL_HEADERS = [
-    "N", "Articulo", "U/M", "CostoU$", "costo/envíoU$", "Unidades", 
-=======
 // CAMBIO 1: Se agrega "GastosTotalesU$" a las cabeceras de Excel
 const EXCEL_HEADERS = [
     "N", "Articulo", "U/M", "CostoU$", "costo/envíoU$", "GastosTotalesU$", "Unidades", 
->>>>>>> 163d6fa (Mejoras de la pagina)
     "Costo/UnidadU$", "Costo/UnidadC$", "Precio/ventaC$", "Ganancia/UnidadC$", 
     "Ganancia/TotalC$", "T/C"
 ];
 
-<<<<<<< HEAD
-const DISPLAY_HEADER_NAMES = [
-    "Nº", "Artículo", "U/M", "Costo Shein ($)", "Envío Paquete ($)", "Unidades", 
-=======
 // CAMBIO 2: Se agrega "Gastos Totales ($)" a las cabeceras de display
 const DISPLAY_HEADER_NAMES = [
     "Nº", "Artículo", "U/M", "Costo Shein ($)", "Envío Paquete ($)", "Gastos Totales ($)", "Unidades", 
->>>>>>> 163d6fa (Mejoras de la pagina)
     "Costo Unitario ($)", "Costo Unitario (C$)", "Precio Venta (C$)", "Ganancia Unidad (C$)", 
     "Ganancia Total (C$)", "T/C"
 ];
@@ -43,23 +33,16 @@ const DISPLAY_HEADER_NAMES = [
 
 // --- FUNCIÓN DE CÁLCULO CORE ---
 const calcularValoresFinancieros = (precioTotalUSD, costoEnvioUSD, cantUnidades, precioVentaC) => {
-<<<<<<< HEAD
-    const costoTotalLoteUSD = precioTotalUSD + costoEnvioUSD;
-=======
     const costoTotalLoteUSD = precioTotalUSD + costoEnvioUSD; // ESTE ES EL GASTO TOTAL
->>>>>>> 163d6fa (Mejoras de la pagina)
     const costoUnidadUSD = cantUnidades > 0 ? costoTotalLoteUSD / cantUnidades : 0;
     const costoUnidadC = costoUnidadUSD * TASA_CAMBIO_DOLAR;
     const gananciaUnidadC = precioVentaC - costoUnidadC;
     const gananciaTotalC = gananciaUnidadC * cantUnidades;
 
     return {
-<<<<<<< HEAD
-=======
         // CAMBIO 3: Se añade el Gastos Totales al objeto devuelto
         'GastosTotalesU$': parseFloat(costoTotalLoteUSD.toFixed(2)),
         // FIN CAMBIO 3
->>>>>>> 163d6fa (Mejoras de la pagina)
         costoUnidadUSD: parseFloat(costoUnidadUSD.toFixed(4)), 
         costoUnidadC: parseFloat(costoUnidadC.toFixed(2)),   
         gananciaUnidadC: parseFloat(gananciaUnidadC.toFixed(2)),
@@ -99,7 +82,6 @@ const initializeDataAndCounter = () => {
 // Se convierte en asíncrona para usar SweetAlert2 con await
 const deleteOrder = async (n) => {
     
-    // Función para ejecutar la eliminación después de la autenticación
     const executeDeletion = async () => {
         // REEMPLAZO DE 'confirm' por SweetAlert2
         const result = await Swal.fire({
@@ -193,28 +175,19 @@ const deleteOrder = async (n) => {
 window.deleteOrder = deleteOrder; // Hacemos la función global
 
 
+// ... (Código anterior)
+
 // --- RENDERIZACIÓN DE LA TABLA (COMPARTIDA) ---
 const renderTable = (data, containerId, isEditable = false) => {
     const container = document.getElementById(containerId);
     if (!container) return; // Salir si el contenedor no existe (estamos en otra página)
     
     if (data.length === 0) {
-        container.innerHTML = '<p class="status-text">No hay artículos cargados o guardados.</p>';
+        // Mejoramos el estilo para coincidir con el diseño de las tarjetas
+        container.innerHTML = '<p class="status-text text-muted text-center p-3 border rounded">No hay artículos cargados o guardados.</p>';
         return;
     }
 
-<<<<<<< HEAD
-    const displayHeaders = [
-        { key: 'N', name: 'Nº' }, { key: 'Articulo', name: 'Artículo' }, { key: 'U/M', name: 'U/M' },
-        { key: 'CostoU$', name: 'Costo Shein ($)' }, { key: 'costo/envíoU$', name: 'Envío Paquete ($)' }, 
-        { key: 'Unidades', name: 'Unidades' }, { key: 'Costo/UnidadU$', name: 'Costo Unitario ($)' },
-        { key: 'Costo/UnidadC$', name: 'Costo Unitario (C$)' }, { key: 'Precio/ventaC$', name: 'Precio Venta (C$)' },
-        { key: 'Ganancia/UnidadC$', name: 'Ganancia Unidad (C$)' }, { key: 'Ganancia/TotalC$', name: 'Ganancia Total (C$)' },
-        { key: 'T/C', name: 'T/C' },
-    ];
-    
-    const headers = displayHeaders.filter(h => data[0].hasOwnProperty(h.key));
-=======
     // CAMBIO 4: Se actualiza la lista de displayHeaders con el nuevo campo
     const displayHeaders = [
         { key: 'N', name: 'Nº' }, { key: 'Articulo', name: 'Artículo' }, { key: 'U/M', name: 'U/M' },
@@ -230,13 +203,12 @@ const renderTable = (data, containerId, isEditable = false) => {
         { key: 'T/C', name: 'T/C' },
     ];
     
-    // 💥 CORRECCIÓN FINAL: Usamos todas las cabeceras para que no se oculte la nueva columna
-    // Línea anterior incorrecta: const headers = displayHeaders.filter(h => data[0].hasOwnProperty(h.key));
-    const headers = displayHeaders; // <--- CÓDIGO CORREGIDO.
->>>>>>> 163d6fa (Mejoras de la pagina)
+    // 💥 CORRECCIÓN FINAL (Problema Local Storage): Usamos todas las cabeceras para que no se oculte la nueva columna
+    const headers = displayHeaders; 
     
-    let html = '<div class="table-container"><table class="order-table"><thead><tr>';
-    headers.forEach(header => { html += `<th>${header.name}</th>`; });
+    // 💥 APLICACIÓN DE CLASES BOOTSTRAP: table, table-striped, table-hover 💥
+    let html = '<div class="table-responsive"><table class="order-table table table-striped table-hover align-middle"><thead><tr>';
+    headers.forEach(header => { html += `<th scope="col">${header.name}</th>`; }); // scope="col" es buena práctica
     
     if (isEditable) {
         html += '<th>Eliminar</th>';
@@ -253,11 +225,7 @@ const renderTable = (data, containerId, isEditable = false) => {
                  let formatted = num.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
 
                  if (header.key.includes('C$')) { formatted = 'C$ ' + formatted; } 
-<<<<<<< HEAD
-                 else if (header.key.includes('U$') || header.key === 'CostoU$' || header.key === 'costo/envíoU$') { formatted = '$ ' + formatted; } 
-=======
                  else if (header.key.includes('U$') || header.key === 'CostoU$' || header.key === 'costo/envíoU$' || header.key === 'GastosTotalesU$') { formatted = '$ ' + formatted; } 
->>>>>>> 163d6fa (Mejoras de la pagina)
                  else if (header.key === 'T/C') { formatted = parseFloat(value).toFixed(4); }
                  value = formatted;
             }
@@ -265,8 +233,8 @@ const renderTable = (data, containerId, isEditable = false) => {
         });
         
         if (isEditable) {
-            // Se llama a la función global deleteOrder
-            html += `<td><button class="btn-delete" onclick="deleteOrder(${order.N})">❌</button></td>`;
+            // Usamos clases de botón de Bootstrap
+            html += `<td><button class="btn btn-sm btn-danger" onclick="deleteOrder(${order.N})">Eliminar</button></td>`;
         }
         html += '</tr>';
     });
@@ -274,6 +242,8 @@ const renderTable = (data, containerId, isEditable = false) => {
     html += '</tbody></table></div>';
     container.innerHTML = html;
 };
+
+// ... (Código posterior)
 
 
 // ---------------------------------------------------------------
@@ -302,10 +272,7 @@ const handleFormSubmit = (event) => {
         'U/M': 'Paquete', 
         'CostoU$': precioTotalUSD, 
         'costo/envíoU$': costoEnvioUSD, 
-<<<<<<< HEAD
-=======
         'GastosTotalesU$': calculated.GastosTotalesU$, // CAMBIO 5: Se añade el nuevo campo
->>>>>>> 163d6fa (Mejoras de la pagina)
         'Unidades': cantUnidades,
         'Costo/UnidadU$': calculated.costoUnidadUSD,
         'Costo/UnidadC$': calculated.costoUnidadC,
@@ -348,35 +315,22 @@ const initializeIndexPage = () => {
             if (pTotalUSD > 0 || cEnvioUSD > 0 || pVentaC > 0) {
                 const calculated = calcularValoresFinancieros(pTotalUSD, cEnvioUSD, unidades, pVentaC);
                 
-<<<<<<< HEAD
-=======
                 // CAMBIO 6: Se agrega el feedback en vivo de los Gastos Totales
                 const gastosTotalesU = calculated.GastosTotalesU$.toLocaleString('es-NI', { minimumFractionDigits: 2 }); 
                 
->>>>>>> 163d6fa (Mejoras de la pagina)
                 const costoUnitarioC = calculated.costoUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
                 const gananciaUnidadC = calculated.gananciaUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
                 const gananciaTotalC = calculated.gananciaTotalC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
 
-<<<<<<< HEAD
-                let color = calculated.gananciaUnidadC >= 0.01 ? '#10b981' : '#ef4444'; 
+                // 💥 CORRECCIÓN FINAL (Problema de Color): Cambiado de >= 0.01 a > 0
+                let color = calculated.gananciaUnidadC > 1 ? '#10b981' : '#ef4444'; 
 
                 feedbackDiv.style.color = color;
-                feedbackDiv.innerHTML = `
-                    Costo Unitario: **C$ ${costoUnitarioC}** <br>
-                    Ganancia/Unidad: **C$ ${gananciaUnidadC}** | Ganancia/Total: **C$ ${gananciaTotalC}**
-=======
-                // 1. Definimos el color de la ganancia
-                const gananciaColor = calculated.gananciaUnidadC > 1 ? '#10b981' : '#ef4444'; 
-
-                // 2. Insertamos el HTML, aplicando el color solo a la línea de la ganancia.
+                // CAMBIO 7: Se muestra el nuevo feedback
                 feedbackDiv.innerHTML = `
                     Gastos Totales (Lote): $ ${gastosTotalesU} <br>
                     Costo Unitario: C$ ${costoUnitarioC} <br>
-                    <span style="color: ${gananciaColor}; font-weight: 600;">
                     Ganancia/Unidad: C$ ${gananciaUnidadC} | Ganancia/Total: C$ ${gananciaTotalC}
-                    </span>
->>>>>>> 163d6fa (Mejoras de la pagina)
                 `;
 
             } else {
@@ -446,12 +400,8 @@ const handleDownloadExcel = () => {
         EXCEL_HEADERS.forEach(key => {
             const num = parseFloat(newOrder[key]);
             if (!isNaN(num)) {
-<<<<<<< HEAD
-                newOrder[key] = key === 'Costo/UnidadU$' ? num.toFixed(4) : num.toFixed(2);
-=======
                 // Se ajusta la lógica de formato para el nuevo campo GastosTotalesU$
                 newOrder[key] = (key === 'Costo/UnidadU$') ? num.toFixed(4) : num.toFixed(2);
->>>>>>> 163d6fa (Mejoras de la pagina)
             }
         });
         return newOrder;

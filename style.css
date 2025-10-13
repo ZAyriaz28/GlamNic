@@ -1,193 +1,47 @@
 /*
- * Diseño: Minimalista/Glassmorphism suave, Mobile-First
+ * Diseño: Minimalismo Sofisticado con Bootstrap 5
  * Paleta: Rosa Pastel, Blanco y Beige
  */
 
-/* VARIABLES CSS para un manejo centralizado */
+/* VARIABLES CSS */
 :root {
     --color-primary-pink: #f8c0c8; /* Rosa Pastel Suave */
     --color-secondary-beige: #fef5e7; /* Beige/Cremoso */
-    --color-text-dark: #333333;
     --color-text-light: #ffffff;
-    --color-background: #ffffff;
-    --color-card-bg: rgba(255, 255, 255, 0.7); /* Transparencia para Glassmorphism */
-    --color-shadow-light: rgba(0, 0, 0, 0.05);
-    --color-shadow-medium: rgba(0, 0, 0, 0.1);
-    --font-family-primary: 'Poppins', sans-serif;
-    --border-radius-large: 16px;
-    --border-radius-medium: 8px;
-    --spacing-unit: 1rem; /* 16px */
+    
+    /* 💥 INYECCIÓN EN BOOTSTRAP 💥 */
+    --bs-primary: #f8c0c8; /* Usar el rosa pastel como color primario de Bootstrap */
+    --bs-primary-rgb: 248, 192, 200;
 }
 
-/* RESET BÁSICO Y TIPOGRAFÍA */
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* ESTILOS DE FONDO */
 
 body {
-    font-family: var(--font-family-primary);
-    line-height: 1.6;
-    color: var(--color-text-dark);
+    /* Mantiene el gradiente de fondo en todo el cuerpo */
     background: linear-gradient(135deg, var(--color-secondary-beige) 0%, var(--color-primary-pink) 100%);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+    font-family: 'Poppins', sans-serif;
 }
 
-/* CONTENEDOR PRINCIPAL Y LAYOUT */
-.container {
-    width: 90%;
-    max-width: 1000px;
-    margin: var(--spacing-unit) auto;
-    padding: var(--spacing-unit) 0;
-    flex-grow: 1;
-}
-
-/* ENCABEZADO Y PIE DE PÁGINA */
-.header, .footer {
-    text-align: center;
-    padding: calc(var(--spacing-unit) * 1.5);
-    background-color: var(--color-card-bg); /* Un poco de glassmorphism aquí */
-    backdrop-filter: blur(5px);
-}
-
-.header h1 {
-    font-weight: 600;
-    color: var(--color-text-dark);
-}
-
-.footer {
-    font-size: 0.8rem;
-    color: var(--color-text-dark);
-    margin-top: auto; /* Empuja el footer hacia abajo */
-}
-
-/* ESTILO DE TARJETA (GLASSMORHISM SUAVE) */
-.card {
-    background-color: var(--color-card-bg);
-    border-radius: var(--border-radius-large);
-    padding: calc(var(--spacing-unit) * 1.5);
-    margin-bottom: calc(var(--spacing-unit) * 2);
-    box-shadow: 0 8px 32px 0 var(--color-shadow-light); /* Sombra suave */
-    border: 1px solid rgba(255, 255, 255, 0.3); /* Borde sutil */
-    backdrop-filter: blur(10px); /* Efecto de desenfoque */
-    -webkit-backdrop-filter: blur(10px);
-}
-
-.card h2 {
-    color: var(--color-text-dark);
-    margin-bottom: var(--spacing-unit);
-    border-bottom: 2px solid var(--color-primary-pink);
-    padding-bottom: 0.5rem;
-}
-
-/* FORMULARIOS Y GRUPOS */
-.form-group {
-    margin-bottom: var(--spacing-unit);
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.3rem;
-    font-weight: 400;
-    font-size: 0.9rem;
-}
-
-input[type="text"],
-input[type="number"],
-.file-label {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid rgba(200, 200, 200, 0.5);
-    border-radius: var(--border-radius-medium);
-    transition: all 0.3s ease;
-    background-color: var(--color-background);
-    color: var(--color-text-dark);
-    font-family: inherit;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-.file-label:focus-within {
-    border-color: var(--color-primary-pink);
-    box-shadow: 0 0 5px var(--color-primary-pink);
-    outline: none;
-}
-
-/* FILAS DE FORMULARIO PARA MOBILE-FIRST */
-.form-row {
-    display: flex;
-    flex-wrap: wrap; /* Permite que los elementos bajen en móvil */
-    gap: var(--spacing-unit);
-}
-
-.form-row .form-group {
-    flex: 1 1 100%; /* Cada elemento ocupa toda la fila en móvil */
-}
-
-/* OCULTAR INPUT DE ARCHIVO PERO MANTENER FUNCIONALIDAD */
-#excelFile {
-    display: none;
-}
-
-.file-label {
-    cursor: pointer;
-    text-align: center;
-    background-color: var(--color-secondary-beige);
-    border: 2px dashed var(--color-primary-pink);
-    font-weight: 600;
-}
-
-.file-label:hover {
-    background-color: #f7e9d7;
-}
-
-.status-text {
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--color-text-dark);
-}
-
-/* BOTONES CON ESTILO ROMÁNTICO/SUAVE */
-.btn {
-    display: block;
-    width: 100%;
-    padding: 0.75rem;
-    border: none;
-    border-radius: 50px; /* Bordes muy redondeados */
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: var(--spacing-unit);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px var(--color-shadow-medium); /* Sombra suave */
-}
-
+/* --- CORRECCIÓN DE BOTÓN PRIMARIO DE BOOTSTRAP (btn-primary) --- */
 .btn-primary {
-    background-color: var(--color-primary-pink);
-    color: var(--color-text-light);
+    /* Forzamos el color primario rosa */
+    background-color: var(--color-primary-pink) !important;
+    border-color: var(--color-primary-pink) !important;
+    color: var(--color-text-light) !important; /* Texto blanco */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.btn-primary:hover {
-    background-color: #e6a7b1;
-    box-shadow: 0 6px 8px var(--color-shadow-medium);
-    transform: translateY(-2px);
+.btn-primary:hover,
+.btn-primary:focus {
+    /* Un rosa ligeramente más oscuro al pasar el ratón */
+    background-color: #e6a7b1 !important; 
+    border-color: #e6a7b1 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.btn-secondary {
-    background-color: var(--color-secondary-beige);
-    color: var(--color-text-dark);
-    border: 1px solid var(--color-primary-pink);
-}
 
-.btn-secondary:hover {
-    background-color: #f5eedb;
-    box-shadow: 0 6px 8px var(--color-shadow-light);
-    transform: translateY(-2px);
-}
-
-/* Estilo personalizado para el botón rosado */
+/* ESTILO DEL BOTÓN ROSADO PERSONALIZADO (Para navegación) */
 .btn-rosadito {
     background-color: #ffb6c1; /* rosa claro */
     color: white; /* texto blanco */
@@ -206,26 +60,11 @@ input[type="number"]:focus,
     transform: translateY(-2px);
 }
 
-
-/* ESTILO DE LA TABLA RESPONSIVE */
-.table-container {
-    width: 100%;
-    overflow-x: auto; /* Scroll horizontal en pantallas pequeñas */
-    -webkit-overflow-scrolling: touch;
-    margin-top: var(--spacing-unit);
-}
-
+/* ESTILO DE LA TABLA (Mantiene la cabecera rosa y la hace más compacta para móviles) */
 .order-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* Asegura el scroll horizontal en móviles */
-    font-size: 0.9rem;
-}
-
-.order-table th, .order-table td {
-    padding: 0.75rem 0.5rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+    font-size: 0.8rem; /* Fuente un poco más pequeña en general */
 }
 
 .order-table th {
@@ -237,32 +76,56 @@ input[type="number"]:focus,
     z-index: 10;
 }
 
-.order-table tr:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.8);
+.order-table th, .order-table td {
+    padding: 0.5rem 0.3rem; /* Padding ajustado */
+    text-align: left;
+    white-space: nowrap; /* Evita que el texto de las celdas se rompa */
 }
 
-/* MEDIA QUERIES (TABLET Y DESKTOP) */
-@media (min-width: 600px) {
+/* Estilo para las filas impares de la tabla (para mantener la estética) */
+.order-table tr:nth-child(even) {
+    background-color: var(--color-secondary-beige);
+}
+
+
+/* =================================================================== */
+/* 💥 MEDIA QUERIES PARA CELULARES PEQUEÑOS (OPTIMIZACIÓN FINAL) 💥 */
+/* =================================================================== */
+
+@media (max-width: 576px) {
+    /* Reduce el padding lateral del contenedor para aprovechar el espacio */
     .container {
-        padding: calc(var(--spacing-unit) * 2);
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
     }
     
-    .card {
-        padding: calc(var(--spacing-unit) * 2);
+    /* Asegura que el título del header sea más pequeño */
+    .header h1 {
+        font-size: 1.5rem !important;
     }
     
-    /* En tablet/desktop, los elementos de la fila se distribuyen mejor */
-    .form-row .form-group {
-        flex: 1 1 auto; 
+    /* Reduce el padding de las tarjetas (cards) */
+    .card-body {
+        padding: 1rem !important;
     }
     
-    .btn {
-        width: 300px; /* Limita el ancho del botón */
-        margin-left: auto;
-        margin-right: auto;
+    /* La tabla se hace aún más compacta en la fuente */
+    .order-table {
+        font-size: 0.7rem; 
+    }
+    
+    .order-table th, .order-table td {
+        padding: 0.3rem 0.2rem; /* Padding súper ajustado */
     }
 
-    .order-table {
-        min-width: auto; /* Se adapta a 100% */
+    /* Reduce el tamaño del botón de navegación */
+    .btn-rosadito {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+
+    /* Hace que el texto de las etiquetas sea más pequeño para ahorrar espacio vertical */
+    .form-label, .small {
+        font-size: 0.75rem !important;
     }
 }
