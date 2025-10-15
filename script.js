@@ -203,10 +203,10 @@ const renderTable = (data, containerId, isEditable = false) => {
         { key: 'T/C', name: 'T/C' },
     ];
     
-    // 💥 CORRECCIÓN FINAL (Problema Local Storage): Usamos todas las cabeceras para que no se oculte la nueva columna
+    //  CORRECCIÓN FINAL (Problema Local Storage): Usamos todas las cabeceras para que no se oculte la nueva columna
     const headers = displayHeaders; 
     
-    // 💥 APLICACIÓN DE CLASES BOOTSTRAP: table, table-striped, table-hover 💥
+    // APLICACIÓN DE CLASES BOOTSTRAP: table, table-striped, table-hover 
     let html = '<div class="table-responsive"><table class="order-table table table-striped table-hover align-middle"><thead><tr>';
     headers.forEach(header => { html += `<th scope="col">${header.name}</th>`; }); // scope="col" es buena práctica
     
@@ -322,13 +322,13 @@ const initializeIndexPage = () => {
                 const gananciaUnidadC = calculated.gananciaUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
                 const gananciaTotalC = calculated.gananciaTotalC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
 
-                // 💥 CORRECCIÓN FINAL (Problema de Color): Cambiado de >= 0.01 a > 0
-                let color = calculated.gananciaUnidadC > 1 ? '#10b981' : '#ef4444'; 
+                //  CORRECCIÓN FINAL (Problema de Color): Cambiado de >= 0.01 a > 0
+                let color = calculated.gananciaUnidadC > 0.01 ? '#10b981' : '#ef4444'; 
 
                 feedbackDiv.style.color = color;
                 // CAMBIO 7: Se muestra el nuevo feedback
                 feedbackDiv.innerHTML = `
-                    Gastos Totales (Lote): $ ${gastosTotalesU} <br>
+                     <span style="color:#3b82f6;">Gastos Totales (Lote): $ ${gastosTotalesU}</span> <br>
                     Costo Unitario: C$ ${costoUnitarioC} <br>
                     Ganancia/Unidad: C$ ${gananciaUnidadC} | Ganancia/Total: C$ ${gananciaTotalC}
                 `;
