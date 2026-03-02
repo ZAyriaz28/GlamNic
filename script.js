@@ -1,5 +1,5 @@
 // ===============================================================
-// GLAM NIC: LÓGICA CON FIREBASE REALTIME DATABASE
+// SISTEMA GLAM NIC: GESTIÓN EN LA NUBE CON FIREBASE
 // ===============================================================
 
 // 1. CONFIGURACIÓN DE FIREBASE
@@ -18,15 +18,21 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// --- VARIABLES DE CONFIGURACIÓN ---
-const TASA_CAMBIO_DOLAR = 36.6243; 
-const ADMIN_USER = 'admin2106';
-const ADMIN_PASS = 'admin2106';
+// --- CONSTANTES DE CONFIGURACIÓN ---
+const TASA_CAMBIO_DOLAR = 36.6243; //
+const ADMIN_USER = 'admin2106'; //
+const ADMIN_PASS = 'admin2106'; //
 
 let ordersData = [];
 let itemCounter = 0; 
 
-// --- FUNCIÓN DE CÁLCULO CORE ---
+const EXCEL_HEADERS = [
+    "N", "Articulo", "U/M", "CostoU$", "costo/envíoU$", "GastosTotalesU$", "Unidades", 
+    "Costo/UnidadU$", "Costo/UnidadC$", "Precio/ventaC$", "Ganancia/UnidadC$", 
+    "Ganancia/TotalC$", "T/C"
+]; //
+
+// --- MÓDULO DE NEGOCIO (Cálculos) ---
 const calcularValoresFinancieros = (precioTotalUSD, costoEnvioUSD, cantUnidades, precioVentaC) => {
     const costoTotalLoteUSD = precioTotalUSD + costoEnvioUSD;
     const costoUnidadUSD = cantUnidades > 0 ? costoTotalLoteUSD / cantUnidades : 0;
@@ -42,62 +48,74 @@ const calcularValoresFinancieros = (precioTotalUSD, costoEnvioUSD, cantUnidades,
         gananciaTotalC: parseFloat(gananciaTotalC.toFixed(2)),
         tasaCambio: TASA_CAMBIO_DOLAR
     };
-};
+}; //
 
 // --- SINCRONIZACIÓN CON FIREBASE ---
 const initializeDataAndCounter = () => {
     // Escuchar cambios en la base de datos en tiempo real
     db.ref('orders').on('value', (snapshot) => {
         const data = snapshot.val();
-        // Convertir objeto de Firebase a Array
+        // Firebase devuelve un objeto; lo convertimos en array para las tablas
         ordersData = data ? Object.values(data) : [];
         
-        // Calcular el siguiente número N
+        // Calcular el siguiente número N basado en el valor más alto actual
         const maxN = ordersData.reduce((max, item) => Math.max(max, parseInt(item.N) || 0), 0);
         itemCounter = maxN + 1;
 
-        // Renderizar automáticamente en la página actual
+        // Actualizar automáticamente la vista según la página
         renderCurrentPage();
     });
 };
 
 const renderCurrentPage = () => {
-    // Renderiza la tabla en index.html si existe el contenedor
+    // Página principal (index.html)
     if (document.getElementById('tableContainer')) {
         renderTable(ordersData, 'tableContainer', false);
     }
-    // Renderiza la tabla en admin.html si existe el contenedor
+    // Página administrativa (admin.html)
     if (document.getElementById('dynamicContent')) {
         renderAdminView();
     }
 };
 
-// --- FUNCIÓN DE ELIMINACIÓN EN FIREBASE ---
+// --- ELIMINACIÓN CON AUTENTICACIÓN ---
 const deleteOrder = async (n) => {
     const executeDeletion = async () => {
         const result = await Swal.fire({
             title: '¿Estás seguro de eliminar?',
-            html: `Vas a eliminar el artículo N° **${n}**.`,
+            html: `Vas a eliminar el artículo N° **${n}**. Esta acción es **irreversible**.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'Sí, ¡Eliminar!'
+            confirmButtonText: 'Sí, ¡Eliminar!',
+            cancelButtonText: 'Cancelar'
         });
 
         if (result.isConfirmed) {
-            // Eliminar directamente de Firebase usando la referencia N
-            db.ref('orders/' + n).remove()
-                .then(() => {
-                    Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500, showConfirmButton: false });
+            // Eliminar directamente de Firebase
+            db.ref('orders/' + n).remove().then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Eliminado!',
+                    text: `Artículo N° ${n} eliminado de la nube.`,
+                    timer: 1500,
+                    showConfirmButton: false
                 });
+            });
         }
     };
 
     if (sessionStorage.getItem('isAdminLoggedIn') !== 'true') {
         const { value: formValues } = await Swal.fire({
-            title: 'Autenticación',
-            html: '<input id="swal-input-user" class="swal2-input" placeholder="Usuario"><input id="swal-input-pass" class="swal2-input" type="password" placeholder="Contraseña">',
-            preConfirm: () => [document.getElementById('swal-input-user').value, document.getElementById('swal-input-pass').value]
+            title: 'Autenticación de Administrador',
+            html:
+                '<input id="swal-input-user" class="swal2-input" placeholder="Usuario">' +
+                '<input id="swal-input-pass" class="swal2-input" type="password" placeholder="Contraseña">',
+            focusConfirm: false,
+            preConfirm: () => [
+                document.getElementById('swal-input-user').value,
+                document.getElementById('swal-input-pass').value
+            ]
         });
 
         if (formValues && formValues[0] === ADMIN_USER && formValues[1] === ADMIN_PASS) {
@@ -124,85 +142,117 @@ const renderTable = (data, containerId, isEditable = false) => {
 
     const headers = [
         { key: 'N', name: 'Nº' }, { key: 'Articulo', name: 'Artículo' }, { key: 'U/M', name: 'U/M' },
-        { key: 'CostoU$', name: 'Costo Shein ($)' }, { key: 'costo/envíoU$', name: 'Envío Paquete ($)' }, 
+        { key: 'CostoU$', name: 'Costo Shein ($)' }, { key: 'costo/envíoU$', name: 'Envío ($)' }, 
         { key: 'GastosTotalesU$', name: 'Gastos Totales ($)' }, { key: 'Unidades', name: 'Unidades' }, 
-        { key: 'Costo/UnidadU$', name: 'Costo Unitario ($)' }, { key: 'Costo/UnidadC$', name: 'Costo Unitario (C$)' }, 
-        { key: 'Precio/ventaC$', name: 'Precio Venta (C$)' }, { key: 'Ganancia/UnidadC$', name: 'Ganancia Unidad (C$)' }, 
+        { key: 'Costo/UnidadU$', name: 'Costo Unit ($)' }, { key: 'Costo/UnidadC$', name: 'Costo Unit (C$)' }, 
+        { key: 'Precio/ventaC$', name: 'Precio Venta (C$)' }, { key: 'Ganancia/UnidadC$', name: 'Ganancia Uni (C$)' }, 
         { key: 'Ganancia/TotalC$', name: 'Ganancia Total (C$)' }, { key: 'T/C', name: 'T/C' }
-    ];
+    ]; //
     
     let html = '<div class="table-responsive"><table class="order-table table table-striped table-hover align-middle"><thead><tr>';
     headers.forEach(h => html += `<th>${h.name}</th>`);
-    if (isEditable) html += '<th>Eliminar</th>';
+    if (isEditable) html += '<th>Acción</th>';
     html += '</tr></thead><tbody>';
 
     data.forEach(order => {
         html += '<tr>';
         headers.forEach(h => {
             let val = order[h.key];
-            if (!isNaN(val) && val !== '') {
+            if (!isNaN(val) && val !== '' && h.key !== 'N' && h.key !== 'Unidades') {
                  if (h.key.includes('C$')) val = 'C$ ' + parseFloat(val).toLocaleString('es-NI', { minimumFractionDigits: 2 });
                  else if (h.key.includes('U$')) val = '$ ' + parseFloat(val).toLocaleString('es-NI', { minimumFractionDigits: 2 });
+                 else if (h.key === 'T/C') val = parseFloat(val).toFixed(4);
             }
             html += `<td>${val || '—'}</td>`;
         });
         if (isEditable) html += `<td><button class="btn btn-sm btn-danger" onclick="deleteOrder(${order.N})">Eliminar</button></td>`;
         html += '</tr>';
     });
-    container.innerHTML = html + '</tbody></table></div>';
-};
 
-// --- GUARDAR EN FIREBASE ---
+    container.innerHTML = html + '</tbody></table></div>';
+}; //
+
+// --- PÁGINA PRINCIPAL (FORMULARIO Y FEEDBACK) ---
 const handleFormSubmit = (event) => {
     event.preventDefault();
-    const articulo = document.getElementById('articulo').value.trim();
-    const precioTotalUSD = parseFloat(document.getElementById('precioTotalUSD').value) || 0;
-    const costoEnvioUSD = parseFloat(document.getElementById('costoEnvioUSD').value) || 0;
-    const cantUnidades = parseInt(document.getElementById('cantUnidades').value) || 1;
-    const precioVentaC = parseFloat(document.getElementById('precioVentaC').value) || 0;
+    const art = document.getElementById('articulo').value.trim();
+    const pTotal = parseFloat(document.getElementById('precioTotalUSD').value) || 0;
+    const cEnvio = parseFloat(document.getElementById('costoEnvioUSD').value) || 0;
+    const units = parseInt(document.getElementById('cantUnidades').value) || 1;
+    const pVenta = parseFloat(document.getElementById('precioVentaC').value) || 0;
 
-    const calculated = calcularValoresFinancieros(precioTotalUSD, costoEnvioUSD, cantUnidades, precioVentaC);
+    const res = calcularValoresFinancieros(pTotal, cEnvio, units, pVenta);
     
     const newOrder = {
         'N': itemCounter,
-        'Articulo': articulo,
+        'Articulo': art,
         'U/M': 'Paquete', 
-        'CostoU$': precioTotalUSD, 
-        'costo/envíoU$': costoEnvioUSD, 
-        'GastosTotalesU$': calculated.GastosTotalesU$,
-        'Unidades': cantUnidades,
-        'Costo/UnidadU$': calculated.costoUnidadUSD,
-        'Costo/UnidadC$': calculated.costoUnidadC,
-        'Precio/ventaC$': precioVentaC,
-        'Ganancia/UnidadC$': calculated.gananciaUnidadC,
-        'Ganancia/TotalC$': calculated.gananciaTotalC,
-        'T/C': calculated.tasaCambio
-    };
+        'CostoU$': pTotal, 
+        'costo/envíoU$': cEnvio, 
+        'GastosTotalesU$': res.GastosTotalesU$,
+        'Unidades': units,
+        'Costo/UnidadU$': res.costoUnidadUSD,
+        'Costo/UnidadC$': res.costoUnidadC,
+        'Precio/ventaC$': pVenta,
+        'Ganancia/UnidadC$': res.gananciaUnidadC,
+        'Ganancia/TotalC$': res.gananciaTotalC,
+        'T/C': res.tasaCambio
+    }; //
 
-    // Guardar en la ruta 'orders/N'
-    db.ref('orders/' + newOrder.N).set(newOrder)
-        .then(() => {
-            document.getElementById('orderForm').reset();
-            Swal.fire({ icon: 'success', title: 'Guardado en la Nube', timer: 1500, showConfirmButton: false });
-        })
-        .catch(err => console.error("Error al guardar:", err));
+    db.ref('orders/' + newOrder.N).set(newOrder).then(() => {
+        document.getElementById('orderForm').reset();
+        document.getElementById('feedbackGanancia').innerHTML = 'Ingresa los costos para calcular.';
+        Swal.fire({ icon: 'success', title: 'Sincronizado con la Nube', timer: 1500, showConfirmButton: false });
+    });
 };
 
-// --- INICIALIZACIÓN DE PÁGINAS ---
-const initializeIndexPage = () => {
-    const orderForm = document.getElementById('orderForm');
-    if (orderForm) {
-        orderForm.addEventListener('submit', handleFormSubmit);
+const updateLiveFeedback = () => {
+    const pVentaC = parseFloat(document.getElementById('precioVentaC')?.value) || 0;
+    const pTotalUSD = parseFloat(document.getElementById('precioTotalUSD')?.value) || 0;
+    const cEnvioUSD = parseFloat(document.getElementById('costoEnvioUSD')?.value) || 0;
+    const unidades = parseInt(document.getElementById('cantUnidades')?.value) || 1; 
+    const feedbackDiv = document.getElementById('feedbackGanancia');
+
+    if (feedbackDiv && (pTotalUSD > 0 || cEnvioUSD > 0 || pVentaC > 0)) {
+        const res = calcularValoresFinancieros(pTotalUSD, cEnvioUSD, unidades, pVentaC);
+        feedbackDiv.style.color = res.gananciaUnidadC > 0.01 ? '#10b981' : '#ef4444';
+        feedbackDiv.innerHTML = `
+            <span style="color:#3b82f6;">Gastos Totales (Lote): $ ${res.GastosTotalesU$.toFixed(2)}</span><br>
+            Costo Unitario: C$ ${res.costoUnidadC.toLocaleString('es-NI', {minimumFractionDigits:2})}<br>
+            Ganancia/Unidad: C$ ${res.gananciaUnidadC.toLocaleString('es-NI', {minimumFractionDigits:2})}
+        `;
     }
-};
+}; //
+
+// --- EXCEL ---
+const handleDownloadExcel = () => {
+    if (ordersData.length === 0) return Swal.fire('Error', 'No hay datos para descargar', 'error');
+    
+    const dataForSheet = [["Registro Glam Nic"], EXCEL_HEADERS, ...ordersData.map(o => EXCEL_HEADERS.map(key => o[key]))];
+    const ws = XLSX.utils.aoa_to_sheet(dataForSheet);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Pedidos_Shein");
+    XLSX.writeFile(wb, `GlamNic_Nube_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}; //
+
+// --- INICIALIZACIÓN ---
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDataAndCounter();
+    
+    const form = document.getElementById('orderForm');
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+        ['precioVentaC', 'precioTotalUSD', 'costoEnvioUSD', 'cantUnidades'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateLiveFeedback);
+        });
+    }
+
+    document.getElementById('downloadExcelBtn')?.addEventListener('click', handleDownloadExcel);
+});
 
 const renderAdminView = () => {
     const listTitle = document.getElementById('listTitle');
-    if (listTitle) listTitle.textContent = '🔑 Lista Completa (Nube)';
+    if (listTitle) listTitle.textContent = '🔑 Administración (Datos en la Nube)';
+    if (document.getElementById('downloadCard')) document.getElementById('downloadCard').style.display = 'block';
     renderTable(ordersData, 'dynamicContent', true);
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    initializeDataAndCounter();
-    initializeIndexPage();
-});
+}; //
