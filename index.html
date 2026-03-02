@@ -5,92 +5,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon_io/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png">
     <link rel="manifest" href="favicon_io/site.webmanifest">
-    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-TileColor" content="#ffb6c1">
     <meta name="theme-color" content="#ffffff">
 
     <title>Tienda Privada SHEIN - Glam Nic</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css"> 
+    
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="script.js"></script>
 </head>
 
-<body class="bg-light d-flex flex-column min-vh-100 p-0">
-    <header class="header bg-primary shadow-lg p-3">
-        <div class="container text-center text-white">
-            <h1 class="mb-0 fw-bold fs-3">SISTEMA GLAM NIC</h1>
-            <p class="mb-0 opacity-75 small">Gestión de pedidos Shein (Cálculo Unitario)</p>
+<body class="d-flex flex-column min-vh-100 p-0">
+    <header class="header shadow-sm p-4 text-center">
+        <div class="container d-flex flex-column align-items-center">
+            <div class="icon-circle mb-2 shadow-sm">
+                <i class="bi bi-bag-heart-fill fs-2 text-white"></i>
+            </div>
+            <h1 class="mb-1 fw-bold fs-3 text-dark">SISTEMA GLAM NIC</h1>
+            <p class="mb-0 text-muted small fw-medium">Gestión de pedidos Shein (Cálculo Unitario)</p>
         </div>
     </header>
 
-    <div class="container mt-3">
-        <a href="admin.html" class="btn btn-rosadito mb-3 shadow-sm">Administrar Pedidos</a>
+    <div class="container mt-4 d-flex justify-content-end">
+        <a href="admin.html" class="btn btn-rosadito shadow-sm rounded-pill">
+            <i class="bi bi-shield-lock-fill me-2"></i> Administrar Pedidos
+        </a>
     </div>
 
     <main class="container flex-grow-1">
-
-        <section class="card shadow-lg mb-4 border-0 rounded-4">
-            <div class="card-body p-4 p-sm-3">
-                <h2 class="card-title pb-2 mb-4 border-bottom border-primary border-2 fs-5 text-primary fw-bold">Nuevo Lote de Artículos</h2>
+        <section class="card shadow-lg mb-5 border-0 rounded-4 glass-card">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="card-title pb-3 mb-4 border-bottom fs-4 text-primary fw-bold d-flex align-items-center">
+                    <i class="bi bi-box-seam me-2"></i> Nuevo Lote de Artículos
+                </h2>
+                
                 <form id="orderForm">
-                    <div class="mb-3">
-                        <label for="articulo" class="form-label fw-semibold small">Artículo (Ej: Labial Rojo, Camisa de Rayas)</label>
-                        <input type="text" id="articulo" required aria-required="true" placeholder="Nombre del producto" class="form-control border-primary">
+                    <div class="mb-4">
+                        <label for="articulo" class="form-label fw-semibold text-dark"><i class="bi bi-tag me-1 text-primary"></i> Artículo</label>
+                        <input type="text" id="articulo" required aria-required="true" placeholder="Ej: Labial Rojo, Camisa de Rayas" class="form-control form-control-lg custom-input">
                     </div>
 
-                    <div class="row g-3">
+                    <div class="row g-4 mb-2">
                         <div class="col-md-4 col-sm-12">
-                            <label for="precioTotalUSD" class="form-label fw-semibold small">Costo Total en Shein ($)</label>
-                            <input type="number" id="precioTotalUSD" step="0.01" min="0" required
-                                placeholder="Costo del lote en USD" class="form-control border-primary">
+                            <label for="precioTotalUSD" class="form-label fw-semibold text-dark"><i class="bi bi-currency-dollar me-1 text-primary"></i> Costo Shein ($)</label>
+                            <input type="number" id="precioTotalUSD" step="0.01" min="0" required placeholder="0.00" class="form-control form-control-lg custom-input">
                         </div>
                         <div class="col-md-4 col-sm-12">
-                            <label for="costoEnvioUSD" class="form-label fw-semibold small">Costo del Envío (Paquete) ($)</label>
-                            <input type="number" id="costoEnvioUSD" step="0.01" min="0" required
-                                placeholder="Envío del lote en USD" class="form-control border-primary">
+                            <label for="costoEnvioUSD" class="form-label fw-semibold text-dark"><i class="bi bi-truck me-1 text-primary"></i> Envío Lote ($)</label>
+                            <input type="number" id="costoEnvioUSD" step="0.01" min="0" required placeholder="0.00" class="form-control form-control-lg custom-input">
                         </div>
                         <div class="col-md-4 col-sm-12">
-                            <label for="cantUnidades" class="form-label fw-semibold small">Unidades en el Paquete</label>
-                            <input type="number" id="cantUnidades" value="1" min="1" required class="form-control border-primary">
+                            <label for="cantUnidades" class="form-label fw-semibold text-dark"><i class="bi bi-123 me-1 text-primary"></i> Unidades</label>
+                            <input type="number" id="cantUnidades" value="1" min="1" required class="form-control form-control-lg custom-input text-center">
                         </div>
                     </div>
 
-                    <div class="mb-3 mt-4 p-3 border border-primary-subtle rounded-3 bg-light">
-                        <label for="precioVentaC" class="form-label fw-semibold text-primary">Precio de Venta Unitario (C$)</label>
-                        <input type="number" id="precioVentaC" step="0.01" min="0" required
-                            placeholder="Precio al que se vende C$ (por unidad)" class="form-control border-primary">
-                        <small class="form-text text-muted mt-2 d-block small" aria-live="polite">La ganancia se calculará automáticamente por unidad.</small>
-                        <div id="feedbackGanancia" class="mt-3 fs-6"
-                            style="font-weight: 600; color: #333333; transition: color 0.3s ease;">
-                            Ingresa los costos y el precio de venta para ver el cálculo en vivo.</div>
+                    <div class="mt-4 p-4 rounded-4 feedback-box shadow-sm">
+                        <label for="precioVentaC" class="form-label fw-bold text-primary fs-5"><i class="bi bi-cash-coin me-2"></i> Precio de Venta Unitario (C$)</label>
+                        <div class="input-group input-group-lg mb-2 shadow-sm rounded-3">
+                            <span class="input-group-text bg-white border-end-0 text-primary fw-bold border-custom">C$</span>
+                            <input type="number" id="precioVentaC" step="0.01" min="0" required placeholder="0.00" class="form-control border-start-0 border-custom ps-0">
+                        </div>
+                        <small class="text-muted d-block small mb-3"><i class="bi bi-info-circle me-1"></i> La ganancia se calculará automáticamente.</small>
+                        
+                        <div id="feedbackGanancia" class="p-3 bg-white rounded-3 shadow-sm border border-light text-center" style="font-weight: 600; color: #6c757d; transition: all 0.3s ease;">
+                            Ingresa los costos y el precio para ver el cálculo en vivo.
+                        </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill fs-5 fw-bold py-2 shadow-sm">GUARDAR LOTE Y CALCULAR</button>
+                    <div class="mt-5 text-center">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 py-3 shadow border-0 fw-bold btn-hover-effect">
+                            <i class="bi bi-save me-2"></i> GUARDAR Y CALCULAR
+                        </button>
+                    </div>
                 </form>
             </div>
         </section>
 
-        <section class="card shadow-lg order-list mb-4 border-0 rounded-4">
-            <div class="card-body p-4 p-sm-3">
-                <h2 id="listTitle" class="card-title pb-2 mb-4 border-bottom border-primary border-2 fs-5 text-primary fw-bold">Listado de Artículos/Pedidos</h2>
-                <div id="tableContainer" class="table-responsive">
-                    <p class="status-text text-muted text-center p-3 border rounded small">No hay artículos cargados o guardados.</p>
+        <section class="card shadow-lg order-list mb-5 border-0 rounded-4 glass-card">
+            <div class="card-body p-4 p-md-5">
+                <h2 id="listTitle" class="card-title pb-3 mb-4 border-bottom fs-4 text-primary fw-bold d-flex align-items-center">
+                    <i class="bi bi-list-check me-2"></i> Listado de Pedidos Guardados
+                </h2>
+                <div id="tableContainer" class="table-responsive rounded-3 shadow-sm custom-scrollbar">
+                    <p class="text-muted text-center p-4 m-0 bg-light rounded-3">No hay artículos cargados o guardados actualmente.</p>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="footer bg-white p-3 text-center mt-auto border-top">
-        <p class="mb-0 text-muted small">&copy; 2024 Glam Nic</p>
+    <footer class="footer bg-white p-4 text-center mt-auto border-top shadow-sm">
+        <p class="mb-0 text-muted fw-medium small">
+            <i class="bi bi-heart-fill text-primary me-1"></i> &copy; 2024 Glam Nic
+        </p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
 </body>
-
 </html>
