@@ -1,13 +1,7 @@
 // ===============================================================
-// XENON-WEB: LÓGICA DE NEGOCIO Y APLICACIÓN
-// MODIFICADO: Autenticación solo al ELIMINAR producto en admin.html
+// XENON-WEB: LÓGICA DE NEGOCIO Y APLICACIÓN - CORREGIDO
 // ===============================================================
 
-// ---------------------------------------------------------------
-// I. MÓDULO DE NEGOCIO (Cálculo y Persistencia)
-// ---------------------------------------------------------------
-
-// --- VARIABLES DE CONFIGURACIÓN Y CONSTANTES ---
 const TASA_CAMBIO_DOLAR = 36.6243; 
 const LS_KEY = 'sheinOrdersData';
 const ADMIN_USER = 'admin2106';
@@ -15,34 +9,28 @@ const ADMIN_PASS = 'admin2106';
 
 let itemCounter = 0; 
 
-// Definición de las cabeceras (para consistencia de lectura/escritura)
-// CAMBIO 1: Se agrega "GastosTotalesU$" a las cabeceras de Excel
 const EXCEL_HEADERS = [
     "N", "Articulo", "U/M", "CostoU$", "costo/envíoU$", "GastosTotalesU$", "Unidades", 
     "Costo/UnidadU$", "Costo/UnidadC$", "Precio/ventaC$", "Ganancia/UnidadC$", 
     "Ganancia/TotalC$", "T/C"
 ];
 
-// CAMBIO 2: Se agrega "Gastos Totales ($)" a las cabeceras de display
 const DISPLAY_HEADER_NAMES = [
     "Nº", "Artículo", "U/M", "Costo Shein ($)", "Envío Paquete ($)", "Gastos Totales ($)", "Unidades", 
     "Costo Unitario ($)", "Costo Unitario (C$)", "Precio Venta (C$)", "Ganancia Unidad (C$)", 
     "Ganancia Total (C$)", "T/C"
 ];
 
-
 // --- FUNCIÓN DE CÁLCULO CORE ---
 const calcularValoresFinancieros = (precioTotalUSD, costoEnvioUSD, cantUnidades, precioVentaC) => {
-    const costoTotalLoteUSD = precioTotalUSD + costoEnvioUSD; // ESTE ES EL GASTO TOTAL
+    const costoTotalLoteUSD = precioTotalUSD + costoEnvioUSD;
     const costoUnidadUSD = cantUnidades > 0 ? costoTotalLoteUSD / cantUnidades : 0;
     const costoUnidadC = costoUnidadUSD * TASA_CAMBIO_DOLAR;
     const gananciaUnidadC = precioVentaC - costoUnidadC;
     const gananciaTotalC = gananciaUnidadC * cantUnidades;
 
     return {
-        // CAMBIO 3: Se añade el Gastos Totales al objeto devuelto
         'GastosTotalesU$': parseFloat(costoTotalLoteUSD.toFixed(2)),
-        // FIN CAMBIO 3
         costoUnidadUSD: parseFloat(costoUnidadUSD.toFixed(4)), 
         costoUnidadC: parseFloat(costoUnidadC.toFixed(2)),   
         gananciaUnidadC: parseFloat(gananciaUnidadC.toFixed(2)),
@@ -58,386 +46,185 @@ const saveOrdersToLocalStorage = (data) => {
 
 const loadOrdersFromLocalStorage = () => {
     const json = localStorage.getItem(LS_KEY);
-    // Aseguramos que el Local Storage se cargue como un array.
     try {
         return json ? JSON.parse(json) : [];
     } catch (e) {
-        console.error("Error cargando datos de Local Storage:", e);
+        console.error("Error cargando datos:", e);
         return [];
     }
 };
 
 let ordersData = loadOrdersFromLocalStorage();
 
-// --- FUNCIÓN DE INICIALIZACIÓN DE DATOS Y CONTADOR ---
 const initializeDataAndCounter = () => {
     ordersData = loadOrdersFromLocalStorage();
-    // Aseguramos que N sea un número para el cálculo
     const maxN = ordersData.reduce((max, item) => Math.max(max, parseInt(item.N) || 0), 0);
     itemCounter = maxN + 1;
 };
 
-
-// --- FUNCIÓN DE ELIMINACIÓN (GLOBAL) CON AUTENTICACIÓN ON-DEMAND ---
-// Se convierte en asíncrona para usar SweetAlert2 con await
+// --- FUNCIÓN DE ELIMINACIÓN ---
 const deleteOrder = async (n) => {
-
     const executeDeletion = async () => {
-        // REEMPLAZO DE 'confirm' por SweetAlert2
         const result = await Swal.fire({
-            title: '¿Estás seguro de eliminar?',
-            html: `Vas a eliminar el artículo N° **${n}**. Esta acción es **irreversible**.`,
+            title: '¿Estás seguro?',
+            html: `Vas a eliminar el artículo N° **${n}**.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, ¡Eliminar!',
+            confirmButtonText: 'Sí, Eliminar',
             cancelButtonText: 'Cancelar'
         });
 
         if (result.isConfirmed) {
-            // Lógica de eliminación
             ordersData = ordersData.filter(order => parseInt(order.N) !== parseInt(n));
             saveOrdersToLocalStorage(ordersData);
-
-            // Re-renderizar la vista de admin sin modo editable
             renderAdminView(); 
-            initializeDataAndCounter(); // Reajustar el contador
+            initializeDataAndCounter();
 
-            // REEMPLAZO DE 'alert' de éxito
-            Swal.fire({
-                icon: 'success',
-                title: '¡Eliminado!',
-                text: `Artículo N° ${n} eliminado exitosamente.`,
-                timer: 2000, // Notificación que se cierra sola
-                showConfirmButton: false
-            });
+            Swal.fire({ icon: 'success', title: 'Eliminado', timer: 1500, showConfirmButton: false });
         }
     };
 
-    // --- LÓGICA DE AUTENTICACIÓN ---
     if (sessionStorage.getItem('isAdminLoggedIn') !== 'true') {
-        // REEMPLAZO DE 'prompt' por SweetAlert2 para el login (Input múltiple)
         const { value: formValues } = await Swal.fire({
-            title: 'Autenticación de Administrador',
-            html:
-                '<input id="swal-input-user" class="swal2-input" placeholder="Usuario" autocomplete="off">' +
-                '<input id="swal-input-pass" class="swal2-input" type="password" placeholder="Contraseña">',
-            icon: 'info',
-            focusConfirm: false,
-            showCancelButton: true,
-            confirmButtonText: 'Aceptar',
-            cancelButtonText: 'Cancelar',
-            preConfirm: () => {
-                const user = document.getElementById('swal-input-user').value;
-                const pass = document.getElementById('swal-input-pass').value;
-                if (!user || !pass) {
-                    Swal.showValidationMessage('⚠️ Por favor, ingresa usuario y contraseña');
-                    return false;
-                }
-                return [user, pass];
-            }
+            title: 'Login Admin',
+            html: '<input id="swal-input-user" class="swal2-input" placeholder="Usuario">' +
+                 '<input id="swal-input-pass" class="swal2-input" type="password" placeholder="Contraseña">',
+            preConfirm: () => [
+                document.getElementById('swal-input-user').value,
+                document.getElementById('swal-input-pass').value
+            ]
         });
 
-        // Si el usuario cancela, formValues será undefined
-        if (formValues) {
-            const [username, password] = formValues;
-
-            if (username === ADMIN_USER && password === ADMIN_PASS) {
-                sessionStorage.setItem('isAdminLoggedIn', 'true');
-
-                // Notificación de login exitoso
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Acceso Concedido!',
-                    text: 'Iniciando eliminación...',
-                    timer: 1000, 
-                    showConfirmButton: false
-                }).then(() => {
-                    executeDeletion(); // Proceder a la confirmación de eliminación
-                });
-            } else {
-                // Notificación de error de credenciales
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Acceso Denegado',
-                    text: 'Usuario o contraseña incorrectos. Intenta de nuevo.',
-                });
-                return;
-            }
+        if (formValues && formValues[0] === ADMIN_USER && formValues[1] === ADMIN_PASS) {
+            sessionStorage.setItem('isAdminLoggedIn', 'true');
+            executeDeletion();
+        } else if (formValues) {
+            Swal.fire('Error', 'Credenciales incorrectas', 'error');
         }
     } else {
-        // Si ya está logueado, proceder directamente
         executeDeletion();
     }
 };
+window.deleteOrder = deleteOrder;
 
-window.deleteOrder = deleteOrder; // Hacemos la función global
-
-
-// ... (Código anterior)
-
-// --- RENDERIZACIÓN DE LA TABLA (COMPARTIDA) ---
+// --- RENDERIZACIÓN DE LA TABLA ---
 const renderTable = (data, containerId, isEditable = false) => {
     const container = document.getElementById(containerId);
-    if (!container) return; // Salir si el contenedor no existe (estamos en otra página)
+    if (!container) return;
 
     if (data.length === 0) {
-        // Mejoramos el estilo para coincidir con el diseño de las tarjetas
-        container.innerHTML = '<p class="status-text text-muted text-center p-3 border rounded">No hay artículos cargados o guardados.</p>';
+        container.innerHTML = '<p class="text-center p-3 border rounded">No hay datos.</p>';
         return;
     }
 
-    // CAMBIO 4: Se actualiza la lista de displayHeaders con el nuevo campo
     const displayHeaders = [
         { key: 'N', name: 'Nº' }, { key: 'Articulo', name: 'Artículo' }, { key: 'U/M', name: 'U/M' },
-        { key: 'CostoU$', name: 'Costo Shein ($)' }, 
-        { key: 'costo/envíoU$', name: 'Envío Paquete ($)' }, 
-        { key: 'GastosTotalesU$', name: 'Gastos Totales ($)' }, // NUEVA CABECERA
-        { key: 'Unidades', name: 'Unidades' }, 
-        { key: 'Costo/UnidadU$', name: 'Costo Unitario ($)' },
-        { key: 'Costo/UnidadC$', name: 'Costo Unitario (C$)' }, 
-        { key: 'Precio/ventaC$', name: 'Precio Venta (C$)' },
-        { key: 'Ganancia/UnidadC$', name: 'Ganancia Unidad (C$)' }, 
-        { key: 'Ganancia/TotalC$', name: 'Ganancia Total (C$)' },
-        { key: 'T/C', name: 'T/C' },
+        { key: 'CostoU$', name: 'Shein ($)' }, { key: 'costo/envíoU$', name: 'Envío ($)' },
+        { key: 'GastosTotalesU$', name: 'Total ($)' }, { key: 'Unidades', name: 'Cant.' },
+        { key: 'Costo/UnidadC$', name: 'Costo (C$)' }, { key: 'Precio/ventaC$', name: 'Venta (C$)' },
+        { key: 'Ganancia/TotalC$', name: 'Ganancia (C$)' }
     ];
 
-    // 💥 CORRECCIÓN FINAL (Problema Local Storage): Usamos todas las cabeceras para que no se oculte la nueva columna
-    //  CORRECCIÓN FINAL (Problema Local Storage): Usamos todas las cabeceras para que no se oculte la nueva columna
-    const headers = displayHeaders; 
-
-    // 💥 APLICACIÓN DE CLASES BOOTSTRAP: table, table-striped, table-hover 💥
-    // APLICACIÓN DE CLASES BOOTSTRAP: table, table-striped, table-hover 
-    let html = '<div class="table-responsive"><table class="order-table table table-striped table-hover align-middle"><thead><tr>';
-    headers.forEach(header => { html += `<th scope="col">${header.name}</th>`; }); // scope="col" es buena práctica
-
-    if (isEditable) {
-        html += '<th>Eliminar</th>';
-    }
+    let html = '<div class="table-responsive"><table class="table table-striped table-hover"><thead><tr>';
+    displayHeaders.forEach(h => html += `<th>${h.name}</th>`);
+    if (isEditable) html += '<th>Acción</th>';
     html += '</tr></thead><tbody>';
 
     data.forEach(order => {
         html += '<tr>';
-        headers.forEach(header => {
-            let value = order[header.key];
-
-            if (!isNaN(value) && value !== '') {
-                 const num = parseFloat(value);
-                 let formatted = num.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-
-                 if (header.key.includes('C$')) { formatted = 'C$ ' + formatted; } 
-                 else if (header.key.includes('U$') || header.key === 'CostoU$' || header.key === 'costo/envíoU$' || header.key === 'GastosTotalesU$') { formatted = '$ ' + formatted; } 
-                 else if (header.key === 'T/C') { formatted = parseFloat(value).toFixed(4); }
-                 value = formatted;
-            }
-            html += `<td>${value || '—'}</td>`;
+        displayHeaders.forEach(h => {
+            let val = order[h.key];
+            if (h.key.includes('C$')) val = 'C$ ' + val.toLocaleString();
+            if (h.key.includes('U$')) val = '$ ' + val.toLocaleString();
+            html += `<td>${val || '—'}</td>`;
         });
-
-        if (isEditable) {
-            // Usamos clases de botón de Bootstrap
-            html += `<td><button class="btn btn-sm btn-danger" onclick="deleteOrder(${order.N})">Eliminar</button></td>`;
-        }
+        if (isEditable) html += `<td><button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.N})">Borrar</button></td>`;
         html += '</tr>';
     });
-
-    html += '</tbody></table></div>';
-    container.innerHTML = html;
+    container.innerHTML = html + '</tbody></table></div>';
 };
 
-// ... (Código posterior)
-
-
-// ---------------------------------------------------------------
-// II. LÓGICA DE index.html (Página Principal)
-// ---------------------------------------------------------------
-const handleFormSubmit = (event) => {
-    event.preventDefault();
-
-    const articulo = document.getElementById('articulo').value.trim();
-    const precioTotalUSD = parseFloat(document.getElementById('precioTotalUSD').value) || 0;
-    const costoEnvioUSD = parseFloat(document.getElementById('costoEnvioUSD').value) || 0;
-    const cantUnidades = parseInt(document.getElementById('cantUnidades').value) || 0;
-    const precioVentaC = parseFloat(document.getElementById('precioVentaC').value) || 0;
-
-    if (cantUnidades <= 0) {
-        alert("La cantidad de unidades debe ser mayor a cero.");
-        return;
-    }
-
-    const calculated = calcularValoresFinancieros(precioTotalUSD, costoEnvioUSD, cantUnidades, precioVentaC);
-
-    // Crear nuevo objeto de pedido
-    const newOrder = {
-        'N': itemCounter,
-        'Articulo': articulo,
-        'U/M': 'Paquete', 
-        'CostoU$': precioTotalUSD, 
-        'costo/envíoU$': costoEnvioUSD, 
-        'GastosTotalesU$': calculated.GastosTotalesU$, // CAMBIO 5: Se añade el nuevo campo
-        'Unidades': cantUnidades,
-        'Costo/UnidadU$': calculated.costoUnidadUSD,
-        'Costo/UnidadC$': calculated.costoUnidadC,
-        'Precio/ventaC$': precioVentaC,
-        'Ganancia/UnidadC$': calculated.gananciaUnidadC,
-        'Ganancia/TotalC$': calculated.gananciaTotalC,
-        'T/C': calculated.tasaCambio
-    };
-
-    ordersData.push(newOrder); 
-    itemCounter++;
-
-    saveOrdersToLocalStorage(ordersData); // PERSISTENCIA: Guardar en Local Storage
-
-    renderTable(ordersData, 'tableContainer', false); // Renderiza la lista pública
-
-    document.getElementById('orderForm').reset();
-    document.getElementById('feedbackGanancia').innerHTML = 'Ingresa los costos y el precio de venta para ver el cálculo en vivo.';
-    document.getElementById('feedbackGanancia').style.color = '#333333';
-    alert(`Lote de ${cantUnidades} unidades de "${articulo}" guardado exitosamente.`);
-};
-
-
+// --- LÓGICA DE INDEX ---
 const initializeIndexPage = () => {
     const orderForm = document.getElementById('orderForm');
-    if (orderForm) {
-        // Lógica de index.html (Página principal)
-        const inputPrecioVenta = document.getElementById('precioVentaC');
-        const inputPrecioUSD = document.getElementById('precioTotalUSD');
-        const inputEnvioUSD = document.getElementById('costoEnvioUSD');
-        const inputUnidades = document.getElementById('cantUnidades');
-        const feedbackDiv = document.getElementById('feedbackGanancia');
+    if (!orderForm) return;
 
-        const updateLiveFeedback = () => {
-            const pVentaC = parseFloat(inputPrecioVenta.value) || 0;
-            const pTotalUSD = parseFloat(inputPrecioUSD.value) || 0;
-            const cEnvioUSD = parseFloat(inputEnvioUSD.value) || 0;
-            const unidades = parseInt(inputUnidades.value) || 1; 
+    const inputs = ['precioVentaC', 'precioTotalUSD', 'costoEnvioUSD', 'cantUnidades'].map(id => document.getElementById(id));
+    const feedbackDiv = document.getElementById('feedbackGanancia');
 
-            if (pTotalUSD > 0 || cEnvioUSD > 0 || pVentaC > 0) {
-                const calculated = calcularValoresFinancieros(pTotalUSD, cEnvioUSD, unidades, pVentaC);
+    const updateLiveFeedback = () => {
+        const [pVentaC, pTotalUSD, cEnvioUSD, unidades] = inputs.map(i => parseFloat(i.value) || 0);
+        
+        if (pTotalUSD > 0 || cEnvioUSD > 0) {
+            const calc = calcularValoresFinancieros(pTotalUSD, cEnvioUSD, unidades || 1, pVentaC);
+            // CORRECCIÓN: Una sola declaración de color
+            const color = calc.gananciaUnidadC > 0.01 ? '#10b981' : '#ef4444'; 
+            
+            feedbackDiv.style.color = color;
+            feedbackDiv.innerHTML = `
+                <b>Gastos Totales:</b> $ ${calc.GastosTotalesU$.toFixed(2)}<br>
+                <b>Costo Unitario:</b> C$ ${calc.costoUnidadC.toFixed(2)}<br>
+                <b>Ganancia Unidad:</b> C$ ${calc.gananciaUnidadC.toFixed(2)}
+            `;
+        }
+    };
 
-                // CAMBIO 6: Se agrega el feedback en vivo de los Gastos Totales
-                const gastosTotalesU = calculated.GastosTotalesU$.toLocaleString('es-NI', { minimumFractionDigits: 2 }); 
-
-                const costoUnitarioC = calculated.costoUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
-                const gananciaUnidadC = calculated.gananciaUnidadC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
-                const gananciaTotalC = calculated.gananciaTotalC.toLocaleString('es-NI', { minimumFractionDigits: 2 });
-
-                // 💥 CORRECCIÓN FINAL (Problema de Color): Cambiado de >= 0.01 a > 0
-                let color = calculated.gananciaUnidadC > 1 ? '#10b981' : '#ef4444'; 
-                //  CORRECCIÓN FINAL (Problema de Color): Cambiado de >= 0.01 a > 0
-                let color = calculated.gananciaUnidadC > 0.01 ? '#10b981' : '#ef4444'; 
-
-                feedbackDiv.style.color = color;
-                // CAMBIO 7: Se muestra el nuevo feedback
-                feedbackDiv.innerHTML = `
-                    Gastos Totales (Lote): $ ${gastosTotalesU} <br>
-                     <span style="color:#3b82f6;">Gastos Totales (Lote): $ ${gastosTotalesU}</span> <br>
-                    Costo Unitario: C$ ${costoUnitarioC} <br>
-                    Ganancia/Unidad: C$ ${gananciaUnidadC} | Ganancia/Total: C$ ${gananciaTotalC}
-                `;
-
-            } else {
-                feedbackDiv.textContent = 'Ingresa los costos y el precio de venta para ver el cálculo en vivo.';
-                feedbackDiv.style.color = '#333333'; 
-            }
+    inputs.forEach(input => input.addEventListener('input', updateLiveFeedback));
+    orderForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const calc = calcularValoresFinancieros(parseFloat(inputs[1].value), parseFloat(inputs[2].value), parseInt(inputs[3].value), parseFloat(inputs[0].value));
+        
+        const newOrder = {
+            'N': itemCounter++,
+            'Articulo': document.getElementById('articulo').value,
+            'U/M': 'Paquete',
+            'CostoU$': parseFloat(inputs[1].value),
+            'costo/envíoU$': parseFloat(inputs[2].value),
+            'GastosTotalesU$': calc.GastosTotalesU$,
+            'Unidades': parseInt(inputs[3].value),
+            'Costo/UnidadU$': calc.costoUnidadUSD,
+            'Costo/UnidadC$': calc.costoUnidadC,
+            'Precio/ventaC$': parseFloat(inputs[0].value),
+            'Ganancia/UnidadC$': calc.gananciaUnidadC,
+            'Ganancia/TotalC$': calc.gananciaTotalC,
+            'T/C': TASA_CAMBIO_DOLAR
         };
 
-        // Asignación de eventos
-        inputPrecioVenta.addEventListener('input', updateLiveFeedback);
-        inputPrecioUSD.addEventListener('input', updateLiveFeedback);
-        inputEnvioUSD.addEventListener('input', updateLiveFeedback);
-        inputUnidades.addEventListener('input', updateLiveFeedback);
-
-        orderForm.addEventListener('submit', handleFormSubmit);
-
-        // Renderizar la tabla pública
+        ordersData.push(newOrder);
+        saveOrdersToLocalStorage(ordersData);
         renderTable(ordersData, 'tableContainer', false);
-        updateLiveFeedback();
-    }
+        orderForm.reset();
+        Swal.fire('Guardado', 'Artículo agregado correctamente', 'success');
+    });
+
+    renderTable(ordersData, 'tableContainer', false);
 };
 
-// ---------------------------------------------------------------
-// III. LÓGICA DE admin.html (Página de Administración)
-// ---------------------------------------------------------------
-
+// --- LÓGICA DE ADMIN ---
 const renderAdminView = () => {
-    const listTitle = document.getElementById('listTitle');
-    const downloadCard = document.getElementById('downloadCard');
-
-    // El título ahora es estático
-    listTitle.textContent = '🔑 Lista Completa de Artículos (Administración)';
-
-    if (downloadCard) downloadCard.style.display = 'block';
-
-    // RENDERIZAR TABLA CON BOTONES DE ELIMINAR (isEditable = true)
-    renderTable(ordersData, 'dynamicContent', true);
+    const dynamicContent = document.getElementById('dynamicContent');
+    if (dynamicContent) renderTable(ordersData, 'dynamicContent', true);
 };
 
 const initializeAdminPage = () => {
-    const dynamicContent = document.getElementById('dynamicContent');
-    if (dynamicContent) {
-        // Lógica de admin.html: Muestra la lista completa inmediatamente
-        const downloadExcelBtn = document.getElementById('downloadExcelBtn');
-        if(downloadExcelBtn) {
-            downloadExcelBtn.addEventListener('click', handleDownloadExcel);
-        }
-
-        // Muestra la vista de administración por defecto (Sin login inicial)
+    if (document.getElementById('dynamicContent')) {
+        const btn = document.getElementById('downloadExcelBtn');
+        if (btn) btn.addEventListener('click', handleDownloadExcel);
         renderAdminView();
     }
 };
 
-
-// --- MANEJO DE EXCEL (ESCRITURA Y DESCARGA - Compartida) ---
 const handleDownloadExcel = () => {
-    if (ordersData.length === 0) {
-        alert('No hay datos para descargar.');
-        return;
-    }
-
-    const excelHeaders = EXCEL_HEADERS;
-
-    // 1. Preprocesar los datos para limpiar y formatear números antes de escribir en el Excel
-    const dataForExport = ordersData.map(order => {
-        const newOrder = { ...order };
-        EXCEL_HEADERS.forEach(key => {
-            const num = parseFloat(newOrder[key]);
-            if (!isNaN(num)) {
-                // Se ajusta la lógica de formato para el nuevo campo GastosTotalesU$
-                newOrder[key] = (key === 'Costo/UnidadU$') ? num.toFixed(4) : num.toFixed(2);
-            }
-        });
-        return newOrder;
-    });
-
-    // 2. Mapeamos de forma segura los objetos a arrays de valores.
-    const dataRows = dataForExport.map(item => excelHeaders.map(key => {
-        return item[key] !== undefined && item[key] !== null ? item[key] : '';
-    }));
-
-    // 3. Construimos el array completo: Título + Cabeceras (legibles) + Datos
-    const dataForSheet = [
-        ["Registro de Artículos SHEIN - Love Orders"], 
-        EXCEL_HEADERS, 
-        ...dataRows 
-    ];
-
-    // 4. Convertir el array de arrays a hoja de trabajo y generar el archivo
-    const ws = XLSX.utils.aoa_to_sheet(dataForSheet);
-
+    if (ordersData.length === 0) return alert('No hay datos.');
+    const ws = XLSX.utils.json_to_sheet(ordersData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Pedidos_Shein");
-
-    const today = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(wb, `Pedidos_Shein_Actualizado_Unitario_${today}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Pedidos");
+    XLSX.writeFile(wb, `Pedidos_SHEIN_${new Date().toISOString().slice(0,10)}.xlsx`);
 };
 
-
-// --- INICIALIZACIÓN GENERAL ---
+// --- INICIO ---
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDataAndCounter(); // Cargar datos y ajustar contador global
-
-    initializeIndexPage(); // Intenta inicializar la página principal (index.html)
-    initializeAdminPage(); // Intenta inicializar la página de administración (admin.html)
+    initializeDataAndCounter();
+    initializeIndexPage();
+    initializeAdminPage();
+});
