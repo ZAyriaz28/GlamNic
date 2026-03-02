@@ -1,221 +1,227 @@
-/*
- * Diseño: Moderno, Elegante y Minimalista con Glassmorphism
- * Paleta: Rosa Pastel Suave, Beige Claro y Blanco
- */
-
 /* =========================================
-   VARIABLES CSS Y THEME
+   DISEÑO MOBILE-FIRST (Estilo App Nativa)
 ========================================= */
+
 :root {
-    --color-primary-pink: #ffb6c1; /* Rosa clásico principal */
-    --color-primary-light: #ffdce1; /* Rosa muy suave para fondos */
-    --color-primary-dark: #f28ca0; /* Rosa para hovers y bordes */
-    --color-secondary-beige: #fffaf4; /* Beige súper claro */
-    --color-text-main: #333333; /* Texto principal oscuro pero no negro puro */
-    
-    /* Variables de Bootstrap Inyectadas */
-    --bs-primary: #ffb6c1; 
-    --bs-primary-rgb: 255, 182, 193;
+    --color-primary-pink: #ff9fb2; 
+    --color-primary-light: #fff0f3;
+    --color-primary-dark: #ff758f;
+    --color-secondary-beige: #fef5e7;
+    --color-bg-app: #fcf9f9;
+    --color-text-main: #2b2b2b;
+    --nav-height: 70px; /* Altura de la barra inferior en móvil */
 }
 
 body {
-    background: linear-gradient(135deg, var(--color-secondary-beige) 0%, var(--color-primary-light) 100%);
-    font-family: 'Poppins', sans-serif;
+    background-color: var(--color-bg-app);
+    background-image: radial-gradient(circle at top right, var(--color-primary-light) 0%, transparent 40%),
+                      radial-gradient(circle at bottom left, var(--color-secondary-beige) 0%, transparent 40%);
+    font-family: 'Nunito', sans-serif;
     color: var(--color-text-main);
-    background-attachment: fixed; /* Evita que el fondo se corte al hacer scroll */
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: calc(var(--nav-height) + 20px); /* Espacio para no tapar contenido en celular */
 }
 
-/* Fondo especial para la sección admin */
 body.admin-bg {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background-color: #f4f6f9;
+    background-image: none;
 }
 
 /* =========================================
-   HEADER Y COMPONENTES VISUALES
+   COMPONENTES GRÁFICOS APP
 ========================================= */
-.header {
-    background-color: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(10px);
-}
-
-.icon-circle {
-    width: 60px;
-    height: 60px;
+.logo-circle {
+    width: 65px;
+    height: 65px;
     background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-pink));
-    border-radius: 50%;
+    border-radius: 20px; /* Estilo ícono de app de iOS */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.text-primary {
-    color: var(--color-primary-dark) !important;
+.tracking-tight {
+    letter-spacing: -0.5px;
 }
 
-/* =========================================
-   TARJETAS (CARDS) CON GLASSMORPHISM
-========================================= */
-.glass-card {
+/* Tarjetas base redondas estilo iOS */
+.app-card {
+    border-radius: 24px;
     background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(15px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(10px);
 }
 
-.glass-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 35px rgba(255, 182, 193, 0.3) !important;
-}
-
-.download-card {
-    background: linear-gradient(to right, #ffffff, #f0fff4);
-}
-
-.feedback-box {
+.icon-box {
     background-color: var(--color-primary-light);
-    border: 2px dashed var(--color-primary-pink);
+    color: var(--color-primary-dark);
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
 }
 
 /* =========================================
-   FORMULARIOS E INPUTS
+   FORMULARIOS PENSADOS EN DEDOS
 ========================================= */
-.custom-input {
-    border-radius: 12px;
-    border: 2px solid #e9ecef;
-    background-color: #fcfcfc;
-    transition: all 0.3s ease;
+.app-input-group {
+    background: white;
+    border-radius: 16px;
+    border: 2px solid #f1f1f1;
+    overflow: hidden;
+    transition: all 0.3s;
 }
 
-.custom-input:focus, .border-custom:focus {
-    border-color: var(--color-primary-dark) !important;
-    background-color: #ffffff;
-    box-shadow: 0 0 0 0.25rem rgba(255, 182, 193, 0.3) !important;
+.app-input-group:focus-within {
+    border-color: var(--color-primary-pink);
+    box-shadow: 0 0 0 4px rgba(255, 159, 178, 0.15);
 }
 
-.border-custom {
-    border-color: #e9ecef;
-    border-width: 2px;
-}
-
-.input-group-text {
-    background-color: transparent;
-}
-
-/* =========================================
-   BOTONES PERSONLIZADOS
-========================================= */
-.btn-primary {
-    background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-pink)) !important;
-    color: white !important;
-    border: none !important;
-}
-
-.btn-hover-effect {
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.btn-hover-effect:hover {
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 10px 20px rgba(255, 182, 193, 0.4) !important;
-}
-
-/* Botón Navegación Rosa */
-.btn-rosadito {
-    background-color: var(--color-primary-pink);
-    color: white;
-    padding: 0.6rem 1.5rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
+.app-input-group .input-group-text {
+    background: transparent;
     border: none;
 }
 
-.btn-rosadito:hover {
-    background-color: var(--color-primary-dark);
+.app-input-group .form-control {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding-left: 0.5rem;
+    font-weight: 600;
+}
+
+.highlight-box {
+    background: linear-gradient(to right, var(--color-primary-light), #ffffff);
+    border: 1px solid rgba(255, 159, 178, 0.3);
+}
+
+.live-feedback {
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #eee;
+}
+
+/* Botones Grandes */
+.btn-app-primary {
+    background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary-pink));
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 182, 193, 0.4);
+    border: none;
+}
+
+.btn-app-primary:active {
+    transform: scale(0.98);
 }
 
 /* =========================================
-   ESTILOS DE LA TABLA (MÁS ELEGANTE)
+   TABLAS MÓVILES PERFECTAS (Horizontal Scroll)
 ========================================= */
-.table-responsive {
-    border-radius: 12px;
-    overflow: hidden;
+.app-table-wrapper {
+    -webkit-overflow-scrolling: touch; /* Scroll suave en iPhone */
+    overflow-x: auto;
+    /* Sombras que indican que hay más contenido a la derecha */
+    background: 
+        linear-gradient(to right, white 30%, rgba(255,255,255,0)),
+        linear-gradient(to right, rgba(255,255,255,0), white 70%) 100% 0,
+        radial-gradient(farthest-side at 0 50%, rgba(0,0,0,.08), rgba(0,0,0,0)),
+        radial-gradient(farthest-side at 100% 50%, rgba(0,0,0,.08), rgba(0,0,0,0)) 100% 0;
+    background-repeat: no-repeat;
+    background-color: white;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
 }
 
 .table {
     margin-bottom: 0;
-    background-color: white;
+    min-width: 800px; /* Fuerza el scroll en pantallas pequeñas */
 }
 
 .table th {
-    background-color: var(--color-primary-dark) !important;
-    color: white !important;
-    font-weight: 600;
-    padding: 1rem 0.75rem;
-    white-space: nowrap;
-    border-bottom: none;
+    background-color: var(--color-primary-light) !important;
+    color: var(--color-primary-dark) !important;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    padding: 1rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid rgba(255, 159, 178, 0.2);
 }
 
 .table td {
+    padding: 1rem;
     vertical-align: middle;
-    padding: 1rem 0.75rem;
-    white-space: nowrap;
-    border-bottom: 1px solid #f1f1f1;
-    color: #555;
-    font-size: 0.9rem;
-}
-
-.table-striped > tbody > tr:nth-of-type(odd) > * {
-    background-color: var(--color-secondary-beige);
-}
-
-.table-hover > tbody > tr:hover > * {
-    background-color: var(--color-primary-light);
-    color: var(--color-text-main);
-}
-
-/* Scrollbar personalizado para la tabla */
-.custom-scrollbar::-webkit-scrollbar {
-    height: 8px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--color-primary-pink);
-    border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary-dark);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #444;
+    border-bottom: 1px solid #f8f9fa;
 }
 
 /* =========================================
-   MEDIA QUERIES (OPTIMIZACIÓN MÓVIL)
+   NAVEGACIÓN BOTTOM TIPO APP NATIVA
 ========================================= */
-@media (max-width: 576px) {
-    .container {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-    }
-    
-    .card-body {
-        padding: 1.5rem !important;
-    }
-    
-    .header h1 {
-        font-size: 1.5rem !important;
-    }
-    
-    .table td, .table th {
-        padding: 0.5rem;
-        font-size: 0.8rem;
-    }
+.mobile-bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--nav-height);
+    background-color: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid #eee;
+    z-index: 1050;
+    display: block; /* Se muestra por defecto en móvil */
+}
 
-    .btn-rosadito {
-        width: 100%;
-        text-align: center;
+.mobile-bottom-bar .nav-item {
+    color: #aaa;
+    transition: color 0.2s;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.mobile-bottom-bar .nav-item.active {
+    color: var(--color-primary-dark);
+}
+
+.mobile-bottom-bar .nav-item.active i {
+    transform: translateY(-2px);
+    transition: transform 0.2s;
+}
+
+/* =========================================
+   MEDIA QUERIES PARA ADAPTAR A LAPTOP/PC
+========================================= */
+@media (min-width: 768px) {
+    /* Ocultamos la barra de abajo en pantallas grandes */
+    .mobile-bottom-bar {
+        display: none;
+    }
+    
+    body {
+        padding-bottom: 20px;
+    }
+    
+    /* El header y contenido principal flotan mejor en PC */
+    main.container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .desktop-only {
+        display: block !important;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+}
+
+/* Para ocultar los elementos de escritorio en móvil */
+@media (max-width: 767px) {
+    .desktop-only {
+        display: none !important;
+    }
+    .table th, .table td {
+        padding: 0.8rem; /* Un poco menos de espacio en celdas de móvil */
     }
 }
