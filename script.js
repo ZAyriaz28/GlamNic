@@ -228,3 +228,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeIndexPage();
     initializeAdminPage();
 });
+
+// Ocultar pantalla de carga al finalizar
+window.addEventListener('load', () => {
+    const loader = document.getElementById('loader-wrapper');
+    if (loader) {
+        loader.style.opacity = '0';
+        loader.style.visibility = 'hidden';
+    }
+});
