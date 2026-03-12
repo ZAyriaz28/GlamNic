@@ -229,11 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeAdminPage();
 });
 
-// Ocultar pantalla de carga al finalizar
+// Ocultar pantalla de carga al finalizar (con retraso de 2 segundos para que no sea tan rápido)
 window.addEventListener('load', () => {
     const loader = document.getElementById('loader-wrapper');
     if (loader) {
-        loader.style.opacity = '0';
-        loader.style.visibility = 'hidden';
+        setTimeout(() => {
+            loader.style.opacity = '0';
+            loader.style.visibility = 'hidden';
+        }, 2000); // 2000 milisegundos = 2 segundos
     }
 });
