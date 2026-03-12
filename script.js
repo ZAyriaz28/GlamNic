@@ -236,6 +236,6 @@ window.addEventListener('load', () => {
         setTimeout(() => {
             loader.style.opacity = '0';
             loader.style.visibility = 'hidden';
-        }, 2000); // 2000 milisegundos = 2 segundos
+        }, 10000); // 2000 milisegundos = 2 segundos
     }
 });
